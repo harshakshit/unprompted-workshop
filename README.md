@@ -103,6 +103,25 @@ Pull again on the morning of the workshop.
 
 ## Licence
 
-Not yet set. Until a licence file lands here, no reuse rights are granted —
-which is exactly the defect this workshop teaches you to look for, and it will
-be fixed before the session.
+[Apache License 2.0](LICENSE). Copyright 2026 Harsh Akshit.
+
+Take it. Extend the corpus, reuse the worksheets, lift the policy and the rule
+into your own pipeline. Attribution and the licence notice are the only
+conditions, and the patent grant and contribution terms are the reason this one
+rather than something shorter.
+
+Two boundaries worth being explicit about, because this is a workshop about
+provenance:
+
+- **Everything in this repository is purpose-built and covered by the licence
+  above.** All nine corpus samples, both spike sample sets, the detection
+  layers, the worksheets and the container definition.
+- **The two published sets named in "A note on the corpus" are not.** They are
+  cited and linked, never vendored, and each carries its own terms — fetch them
+  yourself. Likewise the scanners: the container installs NVIDIA SkillSpector,
+  Cisco's skill-scanner and ollama *at build time* under their own licences. The
+  Dockerfile is covered here; what it downloads is not.
+
+No licence header is applied to individual corpus files, deliberately. The
+measured verdicts in `spike/findings.md` were taken against these files as they
+are, and adding a header to a sample would change what the scanners see.
