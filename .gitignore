@@ -1,0 +1,19 @@
+# --- build artefacts ---
+.venv/
+__pycache__/
+*.pyc
+tools/
+out/
+runs/
+.DS_Store
+
+# --- not for the public repo ---
+# Answer keys. Published before the session, these pre-solve Modules 2 and 3:
+# corpus-key.md carries the measured verdict for every sample, m2-key.md the
+# worked solution to all three TODOs.
+facilitator/
+
+# Internal build documents, not participant material. Both contain candid
+# planning notes on licensing, employer attribution and facilitator split.
+PLAN.md
+corrections.md

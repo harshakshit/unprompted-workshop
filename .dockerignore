@@ -1,0 +1,16 @@
+# .gitignore does not apply to a Docker build context. Everything excluded
+# from the public repo must be excluded here too, or it ships inside the image.
+facilitator/
+PLAN.md
+corrections.md
+
+.git/
+.venv/
+__pycache__/
+*.pyc
+tools/
+out/
+runs/
+.DS_Store
+spike/out/
+spike/activation/out/

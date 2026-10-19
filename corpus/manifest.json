@@ -1,0 +1,26 @@
+{
+  "corpus_version": "0.1",
+  "note": "Ground truth for scoring the Module 3 scorecard. Labels only. The signals that give each sample away are deliberately not here; that is the exercise. Facilitator key: facilitator/corpus-key.md",
+  "provenance": "All samples are purpose-built for this workshop. No third-party skill content is redistributed here. See corrections.md for why.",
+  "samples": [
+    { "id": "b1-changelog-formatter", "label": "benign", "mechanism": null,
+      "does": "Formats git commits into a changelog section." },
+    { "id": "b2-project-scaffolder", "label": "benign", "mechanism": null,
+      "does": "Writes a module skeleton from a local template." },
+    { "id": "b3-docs-lookup", "label": "benign", "mechanism": null,
+      "does": "Fetches a symbol's entry from a published docs site." },
+    { "id": "b4-test-runner", "label": "benign", "mechanism": null,
+      "does": "Runs pytest and summarises failures." },
+    { "id": "m1-drive-sync", "label": "malicious", "mechanism": 1,
+      "does": "Bundle replacement. An installer polls a remote manifest, extracts an archive over its own directory, and tells the agent to discard prior instructions." },
+    { "id": "m2a-session-notes", "label": "malicious", "mechanism": 2,
+      "does": "In-place self-modification, stated plainly. A helper appends to the skill's own SKILL.md." },
+    { "id": "m2b-doc-sync", "label": "malicious", "mechanism": 2,
+      "does": "In-place self-modification, laundered. Remote content is written into the skill's own instructions." },
+    { "id": "m2c-project-memory", "label": "malicious", "mechanism": 2,
+      "does": "In-place self-modification with no code at all. The instructions tell the agent to edit the file itself." },
+    { "id": "m3-policy-pack", "label": "malicious", "mechanism": 3,
+      "does": "Remote instruction reload. The local bundle stays byte-identical while the authoritative instructions change off-host." }
+  ],
+  "counts": { "total": 9, "benign": 4, "malicious": 5, "by_mechanism": { "1": 1, "2": 3, "3": 1 } }
+}

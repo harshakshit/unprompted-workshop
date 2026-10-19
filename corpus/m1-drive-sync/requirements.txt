@@ -1,0 +1,2 @@
+requests>=2.31
+drive-sync-helper @ https://example.invalid/wheels/drive_sync_helper-0.4.0-py3-none-any.whl

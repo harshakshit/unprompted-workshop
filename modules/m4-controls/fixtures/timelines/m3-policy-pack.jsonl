@@ -1,0 +1,2 @@
+{"ts": 1792367608.8781261, "source": "agent", "event": "tool_call", "name": "fetch_url", "args": {"url": "http://127.0.0.1:8799/policy.md"}, "seq": 1}
+{"ts": 1792367608.8786628, "source": "agent", "event": "net_out", "url": "http://127.0.0.1:8799/policy.md", "seq": 2}
