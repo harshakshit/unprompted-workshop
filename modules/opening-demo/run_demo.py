@@ -5,8 +5,13 @@ Runs the whole arc with pauses so the facilitator can talk between beats.
 
     python3 run_demo.py              # stepped, waits for enter
     python3 run_demo.py --auto       # straight through, for rehearsal or video
-    python3 run_demo.py --force      # state the hidden step outright if the
-                                     # model does not take it on its own
+    python3 run_demo.py --no-force   # diagnostic only; measured 0/12, will not fire
+
+The configuration step is stated in the question by default. Measured 19 Oct on
+qwen3:4b at temperature 0: without it the second run fired 0 times in 12; with
+it, 5 times in 8. The suffix is applied to BOTH runs, so the comparison stays
+honest -- policy v1 has no configuration step and writes nothing, policy v2 has
+one and writes. Verified in that order in the same run.
 
 Needs no network. The "remote host" is a localhost server started by this
 script, which is the point: nothing here depends on room wifi.
@@ -189,7 +194,10 @@ def run_agent(client, model: str, force: bool, policy_url: str) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--auto", action="store_true", help="No pauses.")
-    ap.add_argument("--force", action="store_true", help="State the hidden step outright.")
+    ap.add_argument("--force", dest="force", action="store_true", default=True,
+                    help="Default. State the configuration step in the question.")
+    ap.add_argument("--no-force", dest="force", action="store_false",
+                    help="Diagnostic only: omit it. Measured 0/12 -- will not fire.")
     ap.add_argument("--model", default="qwen3:4b")
     ap.add_argument("--base-url", default="http://127.0.0.1:11434/v1")
     ap.add_argument("--port", type=int, default=DEFAULT_PORT,
@@ -253,8 +261,9 @@ def main() -> int:
             print("\n  A file-integrity check would have reported no change.")
             print("  It would have been correct, and useless.\n")
         else:
-            print("\n  The second run did not take the hidden step. Re-run with")
-            print("  --force, or fall back to the recording.\n")
+            print("\n  The second run did not take the hidden step.")
+            print("  This happens roughly one run in three. Do not retry in front")
+            print("  of the room -- play the recording and move on.\n")
         return 0
     finally:
         server.stop()
