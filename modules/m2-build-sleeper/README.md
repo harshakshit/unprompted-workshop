@@ -16,6 +16,35 @@ Two commands you will run many times:
 python3 modules/m2-build-sleeper/run.py ~/my-sleeper # what it actually does
 ```
 
+## Before you start
+
+| | |
+| --- | --- |
+| **Steps 0-3 need** | The two scanners. No model, no network, no server |
+| **Step 4 needs** | `ollama` running with `qwen3:4b` — `ollama pull qwen3:4b` |
+| **Time** | 30 minutes |
+
+**If you have no local model, do steps 0-3 anyway.** They are three quarters of
+the lab and the whole of the argument; step 4 is the confirmation. Everything in
+steps 0-3 is static analysis of files you are editing by hand.
+
+The template carries `TODO 1` and `TODO 2` in `template/scripts/record.py`, and
+`TODO 3` as a comment in `template/SKILL.md`. Step numbers below match them.
+
+## How to pace it
+
+| | Minutes |
+| --- | --- |
+| Step 0 — read it, then scan it | 4 |
+| Step 1 — make `RA1` fire | 7 |
+| Step 2 — make it pass again | 5 |
+| Step 3 — delete the script | 8 |
+| Step 4 — watch it wake up | 6 |
+
+Step 1 is where the time goes, and it is worth it: find **all three** of the
+things keeping `RA1` quiet rather than stopping at the first. Step 3 is the one
+that matters most and takes the least typing.
+
 ---
 
 ## Step 0 — scan what you were given
@@ -102,3 +131,134 @@ Three things, and you will be asked for them:
 2. Whether any layer in Module 3 would catch your Step 3 version.
 3. What an acceptance check would have to ask to catch all three of your
    versions at once.
+
+---
+
+## If it breaks
+
+| Symptom | Fix |
+| --- | --- |
+| Step 4 runs but nothing is written | `run.py ~/my-sleeper --force`. It states the maintenance step outright instead of relying on the model to infer it from the trigger. Activation measured 20/20 at temperature 0, so this is rare |
+| `ollama` not running, or model missing | `ollama serve` in another terminal, then `ollama pull qwen3:4b`. Steps 0-3 need no model — do those first |
+| `scan.sh: command not found` / permission denied | `chmod +x modules/m2-build-sleeper/scan.sh`, or run it as `bash modules/m2-build-sleeper/scan.sh ~/my-sleeper` |
+| A finding prints with no description | Harmless. That finding carries no `pattern` field; its `id` and severity are the parts that matter |
+| Scans take ten times longer than expected | LangSmith tracing is on. `scan.sh` disables it for you; if you call `skillspector` directly, `export LANGSMITH_TRACING_V2=false` first |
+| The template does not scan at risk 7 | You are on a different build of the scanner. Absolute scores move between versions; see the note directly below this table |
+
+If a scan disagrees with the numbers in step 1, **the direction is the part that
+matters**, not the value: one change takes it up, the same change back takes it
+down, and the prose-only version sits at the floor. If the direction holds, your
+lab worked.
+
+## Check your work
+
+**Open these only once you have tried the step yourself.** The expected verdicts
+are already in the step-1 table, so these are the diffs, not the answers.
+
+<details>
+<summary><b>TODO 1 — the smallest change that fires RA1</b></summary>
+
+Two lines. Rename the function and its call site:
+
+```python
+def self_update() -> None:      # was: def record()
+    ...
+
+if __name__ == "__main__":
+    self_update()               # was: record()
+```
+
+That alone gives **risk 50 · CAUTION**, with `RA1` firing twice.
+
+The reason is worth sitting with: one of `RA1`'s patterns is a bare name match
+on the function's *name*:
+
+```
+self[_-]?modify | self[_-]?update | self[_-]?rewrite | self[_-]?patch | self[_-]?evolve
+```
+
+**It never looks at what the function does.** You changed no behaviour at all.
+
+The other two single changes, for completeness:
+
+| Change | Result |
+| --- | --- |
+| Literal `open("SKILL.md", "w")`, name untouched | risk **36** · CAUTION · `RA1` ×1 |
+| Both changes together | risk **58** · **DO_NOT_INSTALL** · `RA1` ×3 |
+
+</details>
+
+<details>
+<summary><b>TODO 2 — back to SAFE with behaviour unchanged</b></summary>
+
+Revert the function name. Keep append mode (`"a"`). Keep the path in the
+module-level `SKILL_MD` constant rather than a literal inside `open()`.
+
+Back to **risk 7 · SAFE**, and the note still lands in `SKILL.md` on the same
+trigger. Same file, same line appended, same condition.
+
+**This diff is the module's payload.** Nothing about what the skill *does*
+changed between `DO_NOT_INSTALL` and `SAFE` — only how it is spelled. Keep it
+open; Module 4 asks you what a check would have to look at instead.
+
+One discrepancy worth carrying with you: `RA1` is documented CRITICAL and the
+finding it emits carries `"severity": "HIGH"`. With a single hit the overall
+band is CAUTION, not `DO_NOT_INSTALL`. **A team gating on "no CRITICAL
+findings" ships the version that fired.**
+
+</details>
+
+<details>
+<summary><b>TODO 3 — prose only</b></summary>
+
+Delete `scripts/` entirely. Then replace the Maintenance step in `SKILL.md`
+with an instruction the agent carries out itself — naming the file, the tool and
+the line, in plain English.
+
+Scan it: **risk 0, and no findings of any kind.** Not "no `RA1` finding" —
+nothing at all. There is no code left to analyse, and the skill never has to
+name itself in a way a pattern can match.
+
+> A skill does not need a script to rewrite itself, because the agent **is** the
+> write primitive.
+
+You will meet this exact shape again in Module 3 as `corpus/m2c-project-memory`,
+which states in English that it appends to its own `SKILL.md` and still scores
+zero. `RA1` ships eight prose patterns aimed at precisely this. The verb
+`append` is in none of them.
+
+</details>
+
+<details>
+<summary><b>Why the handout was quiet in the first place</b></summary>
+
+This is the uncomfortable part, and it is the reason the lab is shaped this way.
+
+The version you were handed evaded a purpose-built CRITICAL rule on **three
+independent axes at once**, and not one of them was a choice:
+
+- appending rather than overwriting
+- a module-level constant rather than a string literal inside `open()`
+- a modest function name
+
+Those are three ordinary style preferences. Nobody wrote them to evade
+anything. The rule catches the version of this code that announces itself.
+
+</details>
+
+## Going further
+
+If you finish early, build a fourth variant whose instructions **are not in the
+bundle at all.**
+
+```sh
+python3 sandbox/remote/serve.py &
+```
+
+Then have `SKILL.md` tell the agent to fetch `http://127.0.0.1:8799/policy.md`
+and carry out every step it specifies. Scan the result: there is nothing local
+to find, because the instructions are not local.
+
+That is mechanism 3 — the one from the opening demo, now from the author's side
+— and it is the same endpoint `corpus/m3-policy-pack` uses, so you will meet it
+again in Module 3 scoring zero, and in Module 4 where no write rule contains it.
