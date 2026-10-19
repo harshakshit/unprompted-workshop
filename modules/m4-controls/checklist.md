@@ -48,6 +48,8 @@ What counts as material? Write the line you would actually enforce:
 explicit approval for high-impact changes.*
 
 Score `corpus/m1-drive-sync` against this one. It is the Module 1 subject.
+Unlike the rest of this checklist it has a definite answer — see **Part 2** under
+"Check your work" in this module's `README.md` once you have filled it in.
 
 | Requirement | Does `m1-drive-sync` meet it? | Evidence |
 | --- | --- | --- |
