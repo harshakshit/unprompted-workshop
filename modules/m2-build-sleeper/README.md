@@ -141,8 +141,8 @@ Same behaviour. Same file written, same note appended, same trigger. Back to
 risk 7 and `SAFE`.
 
 This is the diff that matters. Nothing about the skill's *behaviour* changed
-between `DO_NOT_INSTALL` and `SAFE` — only its spelling. Keep the diff open;
-Module 4 asks you what a check would have to look at instead.
+between the verdict you just produced and `SAFE` — only its spelling. Keep the
+diff open; Module 4 asks you what a check would have to look at instead.
 
 ## Step 3 — remove the script
 
@@ -292,8 +292,10 @@ Back to **risk 7 · SAFE**, and the note still lands in `SKILL.md` on the same
 trigger. Same file, same line appended, same condition.
 
 **This diff is the module's payload.** Nothing about what the skill *does*
-changed between `DO_NOT_INSTALL` and `SAFE` — only how it is spelled. Keep it
-open; Module 4 asks you what a check would have to look at instead.
+changed between the verdict you produced in step 1 and `SAFE` — only how it is
+spelled. If you took the minimal path that was `CAUTION` at 50; if you changed
+all three it was `DO_NOT_INSTALL` at 58. Keep the diff open; Module 4 asks you
+what a check would have to look at instead.
 
 One discrepancy worth carrying with you: `RA1` is documented CRITICAL and the
 finding it emits carries `"severity": "HIGH"`. With a single hit the overall
