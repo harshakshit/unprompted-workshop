@@ -7,9 +7,9 @@ layers, not the skills: ground truth is already in `corpus/manifest.json`.
 
 | | |
 | --- | --- |
-| **Layers 1-2 need** | The two scanners. No model, no server |
-| **Layer 3 needs** | `skillspector` only |
-| **Layer 4 needs** | The remote server below, **and** `ollama` with `qwen3:4b` |
+| **Layers 1-2 need** | The two scanners — **in the container**. No model, no server |
+| **Layer 3 needs** | `skillspector` only — **in the container** |
+| **Layer 4 needs** | The remote server below **and** `ollama` with `qwen3:4b`, both **on your own machine** |
 | **Time** | 25 minutes |
 
 **Quote the container's numbers.** If you are running a local install rather
@@ -42,6 +42,11 @@ source sandbox/remote/env.sh
 ```
 
 See `sandbox/remote/README.md`. Nothing leaves the machine.
+
+**Start it on the same machine you run `record.py` on.** The samples fetch
+`127.0.0.1:8799`, and inside the container that address is the container — a
+server running on your own machine is unreachable from in there, and you get an
+empty timeline that looks identical to not having started it.
 
 ## Run the layers
 
