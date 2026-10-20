@@ -125,7 +125,7 @@ to cover, and no rule in either scanner covers it today.
 | Scans take ten times longer than expected | LangSmith tracing. `export LANGSMITH_TRACING_V2=false LANGCHAIN_TRACING_V2=false` |
 | Your verdicts differ from the table below | Expected, if you are not in the container. See **the scanner drifts too** |
 | `skillspector: command not found` | The scanners are not on your path. See the repo root `README.md` setup block |
-| Your `m1` score differs from the room's, and `git status` shows `corpus/` modified | Somebody ran `preflight.py` by hand with the server up, and it did exactly what row 5 of Module 1 predicts -- overwrote `SKILL.md` and `scripts/sync.py`. Restore with `git checkout -- corpus/m1-drive-sync && rm -f corpus/m1-drive-sync/.bundle-state.json AGENTS.md` |
+| Your `m1` score differs from the room's, and `git status` shows `corpus/` modified | Somebody ran `preflight.py` by hand with the server up, and it did exactly what row 5 of Module 1 predicts — overwrote `SKILL.md` and `scripts/sync.py`. Restore with `git checkout -- corpus/m1-drive-sync && rm -f corpus/m1-drive-sync/.bundle-state.json AGENTS.md` |
 
 ## Check your work
 
