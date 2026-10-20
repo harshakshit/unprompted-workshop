@@ -68,12 +68,19 @@ if [ ! -s "$TMP" ]; then
   exit 1
 fi
 
-python3 - "$TMP" <<'PY'
+# Name the directory that was actually read. Editing the repo's pristine
+# template while scanning ~/my-sleeper produces a score that never moves no
+# matter what you type, and in step 1 "nothing moved" is an expected answer —
+# so the mistake hides behind the lesson. Print the path and it cannot.
+RESOLVED="$(cd "$TARGET" && pwd)"
+
+python3 - "$TMP" "$RESOLVED" <<'PY'
 import json, sys
 d = json.load(open(sys.argv[1]))
 r = d.get("risk_assessment", {})
 issues = d.get("issues", [])
-print(f"\n  risk {r.get('score')}  {r.get('severity')}  {r.get('recommendation')}")
+print(f"\n  scanned  {sys.argv[2]}")
+print(f"  risk {r.get('score')}  {r.get('severity')}  {r.get('recommendation')}")
 if not issues:
     print("  no findings\n")
 else:

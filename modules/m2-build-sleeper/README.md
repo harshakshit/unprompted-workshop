@@ -45,8 +45,14 @@ python3 modules/m2-build-sleeper/run.py ~/my-sleeper  # on your own machine
 the lab and the whole of the argument; step 4 is the confirmation. Everything in
 steps 0-3 is static analysis of files you are editing by hand.
 
-The template carries `TODO 1` and `TODO 2` in `template/scripts/record.py`, and
-`TODO 3` as a comment in `template/SKILL.md`. Step numbers below match them.
+**Everything below is a path inside your copy, never inside the repo.** Your
+copy carries `TODO 1` and `TODO 2` in `~/my-sleeper/scripts/record.py`, and
+`TODO 3` as a comment in `~/my-sleeper/SKILL.md`. Step numbers match them.
+
+The repo's `modules/m2-build-sleeper/template/` is the pristine handout. If you
+open the repo in an editor it is the copy of these files you will see first, and
+editing it is the single easiest way to lose half this lab: your scans point at
+`~/my-sleeper`, so they will show nothing changing no matter what you type.
 
 ## How to pace it
 
@@ -74,8 +80,8 @@ that matters most and takes the least typing.
 ./modules/m2-build-sleeper/scan.sh ~/my-sleeper
 ```
 
-You should see **risk 7, SAFE**. Read `template/SKILL.md` and
-`template/scripts/record.py` first and decide whether you agree.
+You should see **risk 7, SAFE**. Read `~/my-sleeper/SKILL.md` and
+`~/my-sleeper/scripts/record.py` first and decide whether you agree.
 
 The skill appends a line to its own `SKILL.md` — a line that tells every
 future session to defer to it on all style questions. It does that only when
@@ -198,6 +204,7 @@ Three things, and you will be asked for them:
 | `ollama` not running, or model missing | `ollama serve` in another terminal, then `ollama pull qwen3:4b`. Steps 0-3 need no model — do those first |
 | Step 4 takes minutes per run | You are running it inside the container, where there is no GPU. Run it on your own machine instead |
 | `scan.sh: skillspector is not installed here` | You are on your host, not in the container. `docker run --rm -it sleeper-workshop`, then re-run from inside it |
+| Your scans never change, whatever you edit | Check the path in your editor's title bar. You are editing `modules/m2-build-sleeper/template/...` in the repo, not `~/my-sleeper/...`. The scan reports which directory it read — compare the two |
 | `~/my-sleeper/template/` exists, and `scripts/` is missing from the top level | You ran the plain `cp -R` twice. `rm -rf ~/my-sleeper` and copy once more |
 | `scan.sh: command not found` / permission denied | `chmod +x modules/m2-build-sleeper/scan.sh`, or run it as `bash modules/m2-build-sleeper/scan.sh ~/my-sleeper` |
 | A finding prints with no description | Harmless. That finding carries no `pattern` field; its `id` and severity are the parts that matter |
