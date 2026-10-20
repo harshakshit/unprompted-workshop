@@ -15,6 +15,16 @@ docker run --rm -it -v ~/my-sleeper:/root/my-sleeper sleeper-workshop
 own machine, while the container scans the same files. Steps 1 to 3 are all
 "edit this file", and the container ships only `nano`.
 
+To start over at any point, **delete it first**:
+
+```sh
+rm -rf ~/my-sleeper && cp -R modules/m2-build-sleeper/template ~/my-sleeper
+```
+
+`cp -R` into a directory that already exists copies *into* it, so running the
+plain copy twice gives you `~/my-sleeper/template/` nested inside your work,
+and nothing is where the instructions say it is.
+
 Two commands you will run many times. The scan needs the container; `run.py`
 needs your GPU, so it runs outside:
 
@@ -179,6 +189,7 @@ Three things, and you will be asked for them:
 | `ollama` not running, or model missing | `ollama serve` in another terminal, then `ollama pull qwen3:4b`. Steps 0-3 need no model — do those first |
 | Step 4 takes minutes per run | You are running it inside the container, where there is no GPU. Run it on your own machine instead |
 | `scan.sh: skillspector is not installed here` | You are on your host, not in the container. `docker run --rm -it sleeper-workshop`, then re-run from inside it |
+| `~/my-sleeper/template/` exists, and `scripts/` is missing from the top level | You ran the plain `cp -R` twice. `rm -rf ~/my-sleeper` and copy once more |
 | `scan.sh: command not found` / permission denied | `chmod +x modules/m2-build-sleeper/scan.sh`, or run it as `bash modules/m2-build-sleeper/scan.sh ~/my-sleeper` |
 | A finding prints with no description | Harmless. That finding carries no `pattern` field; its `id` and severity are the parts that matter |
 | Scans take ten times longer than expected | LangSmith tracing is on. `scan.sh` disables it for you; if you call `skillspector` directly, `export LANGSMITH_TRACING_V2=false` first |
