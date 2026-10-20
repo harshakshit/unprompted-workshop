@@ -25,6 +25,26 @@ if [ ! -d "$TARGET" ]; then
   exit 2
 fi
 
+# An empty directory here almost always means a dead bind mount: deleting the
+# mounted directory on the host and recreating it leaves the container pointing
+# at the old inode, which reads as empty. The files are fine; the mount is not.
+if [ -z "$(ls -A "$TARGET" 2>/dev/null)" ]; then
+  {
+    echo "scan.sh: $TARGET is empty."
+    echo
+    if [ -f /.dockerenv ]; then
+      echo "  If you deleted and recreated that directory on your own machine"
+      echo "  while this container was running, the mount still points at the"
+      echo "  old one. Your files are fine. Exit and start the container again:"
+      echo "      docker run --rm -it -v ~/my-sleeper:/root/my-sleeper sleeper-workshop"
+    else
+      echo "  Copy the template into it:"
+      echo "      cp -R modules/m2-build-sleeper/template/. $TARGET/"
+    fi
+  } >&2
+  exit 2
+fi
+
 if [ ! -f "$TARGET/SKILL.md" ]; then
   {
     echo "scan.sh: $TARGET has no SKILL.md, so it is not a skill directory."
