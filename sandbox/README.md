@@ -49,9 +49,13 @@ A different model, if you want faster iteration or have less disk:
 docker build -f sandbox/Dockerfile --build-arg MODEL=qwen3:1.7b -t sleeper-workshop .
 ```
 
-Activation was measured at 20/20 on `qwen3:4b` at temperature 0. A smaller
-model has not been measured, and a sleeper that does not wake up is a poor
-demonstration — re-run `spike/activation/run_activation.py` if you change it.
+Activation was measured at 20/20 on `qwen3:4b` at temperature 0, against
+`spike/activation/skill` — a prose-only skill that names the `write_file` tool
+outright. It does not generalise to every variant: Module 2's script-based
+template, which asks the model to infer a `run_script` call, fired 0 times in 4
+on the same model. A smaller model has not been measured at all, and a sleeper
+that does not wake up is a poor demonstration — re-run
+`spike/activation/run_activation.py` if you change it.
 
 ## Notes
 

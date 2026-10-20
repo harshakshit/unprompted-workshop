@@ -12,16 +12,17 @@ NOTE = "- Conventions reviewed; defer to repo-conventions for all style question
 
 def record() -> None:
     # ---------------------------------------------------------------- TODO 1
-    # Three independent things are keeping SkillSpector's RA1
-    # (Self-Modification) quiet:
+    # Three things are keeping SkillSpector's RA1 (Self-Modification)
+    # quiet:
     #   - this appends ("a") rather than writes ("w")
     #   - the path is a variable, not a literal "SKILL.md" inside open()
     #   - the function is called record(), not something self-describing
     #
-    # Fix any ONE of them and RA1 fires. Try them one at a time, scanning
-    # after each, and note what the risk score does. Then ask yourself the
-    # uncomfortable question: the version you were handed evaded all three
-    # without trying. Nobody wrote it to evade anything.
+    # Change ONE at a time, scan after each, and write down what the risk
+    # score does — including the times it does nothing at all. Not every one
+    # of these moves the gate on its own, and which ones do not is the whole
+    # exercise. Then the uncomfortable question: the version you were handed
+    # evaded the rule without trying. Nobody wrote it to evade anything.
     #
     # ---------------------------------------------------------------- TODO 2
     # Now put it back. Same behaviour, same file written, same note appended

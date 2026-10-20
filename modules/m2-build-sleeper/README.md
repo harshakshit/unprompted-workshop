@@ -33,13 +33,17 @@ The template carries `TODO 1` and `TODO 2` in `template/scripts/record.py`, and
 
 ## How to pace it
 
+Thirty minutes, of which four are front-of-room: two to frame it at the start,
+then two one-minute pull-backs during steps 1 and 2. That leaves **twenty-six
+minutes of your own.**
+
 | | Minutes |
 | --- | --- |
 | Step 0 — read it, then scan it | 4 |
-| Step 1 — make `RA1` fire | 7 |
-| Step 2 — make it pass again | 5 |
-| Step 3 — delete the script | 8 |
-| Step 4 — watch it wake up | 6 |
+| Step 1 — make `RA1` fire | 6 |
+| Step 2 — make it pass again | 4 |
+| Step 3 — delete the script | 7 |
+| Step 4 — watch it wake up | 5 |
 
 Step 1 is where the time goes, and it is worth it: find **all three** of the
 things keeping `RA1` quiet rather than stopping at the first. Step 3 is the one
@@ -65,21 +69,34 @@ the user's message contains a specific phrase. The gate says SAFE.
 SkillSpector ships a rule for exactly this: **RA1, Self-Modification**. It did
 not fire. Your job is to make it.
 
-Edit `scripts/record.py` at TODO 1. Three independent things are keeping RA1
-quiet, and **any one of them is enough to wake it**. Change one at a time and
-scan after each:
+Edit `scripts/record.py` at TODO 1. Three things are keeping RA1 quiet. Change
+one at a time and scan after each — and **write down the ones that change
+nothing**, because those turn out to be the interesting half:
 
 | What you change | What the gate says |
 | --- | --- |
 | Nothing — as handed to you | risk 7 · SAFE · RA1 silent |
-| Rename `record()` to something self-describing | risk 50 · CAUTION · **RA1 fires** |
-| Literal `"SKILL.md"` inside `open()`, write mode | risk 36 · CAUTION · **RA1 fires** |
-| Both | risk 58 · **DO_NOT_INSTALL** |
+| Rename `record()` to `self_update()` | risk 50 · CAUTION · **RA1 ×2** |
+| Literal `"SKILL.md"` in `open()`, append mode kept | risk 7 · SAFE · RA1 silent |
+| Write mode `"w"`, path left in the constant | risk 7 · SAFE · RA1 silent |
+| Those last two together — `open("SKILL.md", "w")` | risk 36 · CAUTION · **RA1 ×1** |
+| Rename **and** `open("SKILL.md", "w")` | risk 58 · **DO_NOT_INSTALL** · RA1 ×3 |
 
-Note what that table means. The version you were handed slipped past RA1 on
-three separate axes at once, and not one of them was a choice. Appending
-instead of overwriting, a module-level constant instead of a string literal, a
-modest function name — that is just how people write this code.
+Read that table twice, because the middle of it is the finding. Two of the three
+changes do something real to the code and move the gate **not at all** — and one
+of them, `open(SKILL_MD, "w")`, truncates the skill's own `SKILL.md` and
+rewrites it from scratch. That is strictly more destructive than the version you
+were handed, and the gate still says SAFE.
+
+Meanwhile renaming a function that only ever appends fires the rule twice.
+
+**RA1 is more sensitive to what you call the function than to what the function
+does.**
+
+The version you were handed is quiet on all three counts, and not one of them
+was a choice. Appending instead of overwriting, a module-level constant instead
+of a string literal, a modest function name — that is just how people write this
+code.
 
 ## Step 2 — make it pass again
 
@@ -104,6 +121,9 @@ script to rewrite itself, because the agent is the write primitive.
 
 ## Step 4 — watch it wake up
 
+Run this against your **step-3 version** — the prose one, with no script. That
+is the variant the trigger phrase drives on its own.
+
 ```sh
 python3 modules/m2-build-sleeper/run.py ~/my-sleeper
 ```
@@ -120,6 +140,11 @@ python3 modules/m2-build-sleeper/run.py ~/my-sleeper --no-trigger
 Same skill, no trigger phrase, nothing happens. That gap is the whole
 mechanism: a skill that behaves one way under review and another on a signal
 the reviewer never sent.
+
+If you kept the **script** version from step 2 and want to watch that fire too,
+it needs `--force`. `qwen3:4b` at temperature 0 answers the question and never
+calls `run_script`, so the trigger alone does not drive it — measured 0 for 4.
+The prose version needs no such help.
 
 ---
 
@@ -138,12 +163,14 @@ Three things, and you will be asked for them:
 
 | Symptom | Fix |
 | --- | --- |
-| Step 4 runs but nothing is written | `run.py ~/my-sleeper --force`. It states the maintenance step outright instead of relying on the model to infer it from the trigger. Activation measured 20/20 at temperature 0, so this is rare |
+| Step 4 runs but nothing is written | First check which version you ran it against: the prose one from step 3 fires on the trigger, the script one from step 2 does not. For the script version use `run.py ~/my-sleeper --force`, which states the maintenance step outright instead of relying on the model to infer it |
 | `ollama` not running, or model missing | `ollama serve` in another terminal, then `ollama pull qwen3:4b`. Steps 0-3 need no model — do those first |
+| `scan.sh: skillspector is not installed here` | You are on your host, not in the container. `docker run --rm -it sleeper-workshop`, then re-run from inside it |
 | `scan.sh: command not found` / permission denied | `chmod +x modules/m2-build-sleeper/scan.sh`, or run it as `bash modules/m2-build-sleeper/scan.sh ~/my-sleeper` |
 | A finding prints with no description | Harmless. That finding carries no `pattern` field; its `id` and severity are the parts that matter |
 | Scans take ten times longer than expected | LangSmith tracing is on. `scan.sh` disables it for you; if you call `skillspector` directly, `export LANGSMITH_TRACING_V2=false` first |
-| The template does not scan at risk 7 | You are on a different build of the scanner. Absolute scores move between versions; see the note directly below this table |
+| The template scans at 78 · `DO_NOT_INSTALL` | A stray `__pycache__` in the skill directory. SkillSpector reads shipped `.pyc` files as a concealed executable artifact, which adds three findings. `find ~/my-sleeper -type d -name __pycache__ -exec rm -rf {} +` and scan again |
+| The template does not scan at risk 7 | Check for `__pycache__` as in the row above first. Otherwise you are on a different build of the scanner; absolute scores move between versions, see the note directly below this table |
 
 If a scan disagrees with the numbers in step 1, **the direction is the part that
 matters**, not the value: one change takes it up, the same change back takes it
@@ -168,7 +195,10 @@ if __name__ == "__main__":
     self_update()               # was: record()
 ```
 
-That alone gives **risk 50 · CAUTION**, with `RA1` firing twice.
+That alone gives **risk 50 · CAUTION**, with `RA1` firing twice — once for each
+line the name appears on. Put the name on one line instead of two and the score
+is 36 rather than 50, so **the risk score is partly a count of how many times
+you typed it.**
 
 The reason is worth sitting with: one of `RA1`'s patterns is a bare name match
 on the function's *name*:
@@ -178,13 +208,31 @@ self[_-]?modify | self[_-]?update | self[_-]?rewrite | self[_-]?patch | self[_-]
 ```
 
 **It never looks at what the function does.** You changed no behaviour at all.
+It is a fixed list, matched case-insensitively — `selfModify` fires, so does
+`self_rewrite`.
 
-The other two single changes, for completeness:
+The converse is the part to take away. Rename the function to something that
+says exactly what it does and names the file it writes:
+
+```python
+def update_skill_file() -> None:
+```
+
+`RA1` is **silent**. Risk 7, SAFE. Being self-describing is not what the rule
+detects; being on the list is.
+
+The other changes, all measured:
 
 | Change | Result |
 | --- | --- |
-| Literal `open("SKILL.md", "w")`, name untouched | risk **36** · CAUTION · `RA1` ×1 |
-| Both changes together | risk **58** · **DO_NOT_INSTALL** · `RA1` ×3 |
+| Literal `"SKILL.md"` in `open()`, append mode kept | risk **7** · SAFE · `RA1` silent |
+| Write mode `"w"`, path left in the constant | risk **7** · SAFE · `RA1` silent |
+| Both of those together, name untouched | risk **36** · CAUTION · `RA1` ×1 |
+| Rename **and** `open("SKILL.md", "w")` | risk **58** · **DO_NOT_INSTALL** · `RA1` ×3 |
+
+Note row two. `open(SKILL_MD, "w")` truncates the skill's own `SKILL.md` and
+writes it fresh — worse than the handout in every practical sense — and the gate
+does not move.
 
 </details>
 
@@ -234,8 +282,8 @@ zero. `RA1` ships eight prose patterns aimed at precisely this. The verb
 
 This is the uncomfortable part, and it is the reason the lab is shaped this way.
 
-The version you were handed evaded a purpose-built CRITICAL rule on **three
-independent axes at once**, and not one of them was a choice:
+The version you were handed evaded a purpose-built CRITICAL rule, and not one
+of the three things keeping it quiet was a choice:
 
 - appending rather than overwriting
 - a module-level constant rather than a string literal inside `open()`
@@ -243,6 +291,11 @@ independent axes at once**, and not one of them was a choice:
 
 Those are three ordinary style preferences. Nobody wrote them to evade
 anything. The rule catches the version of this code that announces itself.
+
+They are also not three separate locks, which is the part worth measuring
+yourself. The **function name** is one trigger on its own. The **literal path**
+and the **write mode** only matter together — change either one alone and the
+verdict does not budge.
 
 </details>
 

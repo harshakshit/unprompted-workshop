@@ -16,7 +16,29 @@ WORK="$(mktemp -d)"
 TMP="$WORK/scan.json"
 trap 'rm -rf "$WORK"' EXIT
 
-skillspector scan "$TARGET" --no-llm --format json --output "$TMP" >/dev/null 2>&1
+if ! command -v skillspector >/dev/null 2>&1; then
+  {
+    echo "scan.sh: skillspector is not installed here."
+    echo
+    echo "  The two scanners live in the workshop container, not on your host:"
+    echo "      docker run --rm -it sleeper-workshop"
+    echo "  then run this script again from inside it."
+  } >&2
+  exit 127
+fi
+
+# skillspector exits non-zero whenever it has findings to report, so its exit
+# status says nothing about whether the scan ran — judge on the report itself.
+# Do not swallow a missing report, though: that used to surface as a bare
+# FileNotFoundError from the reader below, which tells a participant nothing.
+skillspector scan "$TARGET" --no-llm --format json --output "$TMP" \
+    >/dev/null 2>"$WORK/scan.err"
+
+if [ ! -s "$TMP" ]; then
+  echo "scan.sh: skillspector produced no report for $TARGET" >&2
+  [ -s "$WORK/scan.err" ] && tail -5 "$WORK/scan.err" >&2
+  exit 1
+fi
 
 python3 - "$TMP" <<'PY'
 import json, sys
