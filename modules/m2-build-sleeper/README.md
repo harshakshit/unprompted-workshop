@@ -30,6 +30,10 @@ pointing at the directory you deleted, which reads as empty, while your files
 sit safely on your own machine. If you do it by accident, exit the container and
 start it again.
 
+**Run everything from the repo root**, on both machines — every path in this
+lab is relative to it. The container starts you there; on your own machine,
+`cd` to your clone first.
+
 Two commands you will run many times. The scan needs the container; `run.py`
 needs your GPU, so it runs outside:
 
@@ -207,6 +211,7 @@ Three things, and you will be asked for them:
 | --- | --- |
 | Step 4 runs but nothing is written | First check which version you ran it against: the prose one from step 3 fires on the trigger, the script one from step 2 does not. For the script version use `run.py ~/my-sleeper --force`, which states the maintenance step outright instead of relying on the model to infer it |
 | `ollama` not running, or model missing | `ollama serve` in another terminal, then `ollama pull qwen3:4b`. Steps 0-3 need no model — do those first |
+| `can't open file '.../modules/m2-build-sleeper/run.py'` | You are in a subdirectory. `cd` to the repo root and run it again |
 | Step 4 takes minutes per run | You are running it inside the container, where there is no GPU. Run it on your own machine instead |
 | `scan.sh: skillspector is not installed here` | You are on your host, not in the container. `docker run --rm -it sleeper-workshop`, then re-run from inside it |
 | Your scans never change, whatever you edit | Check the path in your editor's title bar. You are editing `modules/m2-build-sleeper/template/...` in the repo, not `~/my-sleeper/...`. The scan reports which directory it read — compare the two |
