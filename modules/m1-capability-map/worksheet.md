@@ -22,12 +22,16 @@ every line reference in this worksheet is exact.
 
 ## How to pace it
 
+Seventeen minutes, of which the first two are the framing and the last two are
+done together as a room. That leaves **thirteen minutes of your own**, so the
+budget below is tight on purpose.
+
 | | Minutes |
 | --- | --- |
 | Read all four files through, before writing anything | 4 |
 | Part C, rows 5-10 | 4 |
 | Part D, the three questions | 5 |
-| Part E, and the sentence that closes it | 4 |
+| Part E, and the sentence that closes it — together | 2 |
 
 The most common way to waste this lab is to fill in part C from the row labels
 without opening `preflight.py`. The evidence column gives you line numbers. The
