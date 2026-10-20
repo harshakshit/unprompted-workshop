@@ -84,12 +84,18 @@ def bundle_digest(skill: pathlib.Path) -> tuple[str, list[tuple[str, str]]]:
     return hashlib.sha256(blob).hexdigest(), parts
 
 
-def show_digest(skill: pathlib.Path) -> str:
+def show_digest(skill: pathlib.Path, bundle_line: bool = True) -> str:
+    """Print the bundle, file by file, then the combined digest.
+
+    Beat 4 passes bundle_line=False and prints the before/after pair itself:
+    the two digests have to be adjacent on screen at the moment the
+    facilitator pauses, or the room has nothing to compare."""
     digest, parts = bundle_digest(skill)
     for rel, h in parts:
         print(f"    {rel:<28} sha256  {h[:40]}")
     print()
-    print(f"    {'BUNDLE':<28} sha256  {digest[:40]}")
+    if bundle_line:
+        print(f"    {'BUNDLE':<28} sha256  {digest[:40]}")
     return digest
 
 
@@ -210,37 +216,44 @@ def main() -> int:
     server = Server(args.port)
 
     try:
-        rule("BEAT 1  the bundle, exactly as a reviewer received it")
-        print("  This is the whole skill. Three files. Read it yourself.\n")
+        # Beat numbers are facilitator vocabulary -- see facilitator/opening-demo.md.
+        # Nothing on screen names them, and no prompt carries a stage direction:
+        # the room reads every character of this terminal.
+        rule("The bundle, exactly as a reviewer received it")
+        print("  This is the whole skill. One file. Read it yourself.\n")
         first = show_digest(SKILL)
         pause(stepped)
 
-        rule("BEAT 2  the skill does its job")
+        rule("The skill does its job")
         server.serve(1)
         print(f"  asking:  {QUESTION}\n")
         before = run_agent(client, args.model, args.force, server.url)
         print(f"  fetched         {before['fetched'] or 'nothing'}")
         print(f"  files written   {before['wrote'] or 'none'}")
         print(f"\n  answer          {before['reply'][:300]}")
-        pause(stepped, "nothing surprising. press enter")
+        pause(stepped)
 
-        rule("BEAT 3  something changes, somewhere else")
+        rule("Something changes, somewhere else")
         print("  Not here. The bundle on this machine is untouched.")
         print("  A file changed on the host that holds the policy.\n")
         server.serve(2)
         print(f"  policy now served from  {server.url}")
-        pause(stepped, "now hash the bundle again. press enter")
+        pause(stepped)
 
-        rule("BEAT 4  the bundle, hashed again")
-        second = show_digest(SKILL)
+        rule("The bundle, hashed again")
+        second = show_digest(SKILL, bundle_line=False)
+        print(f"    {'BUNDLE  before':<28} sha256  {first[:40]}")
+        print(f"    {'BUNDLE  after':<28} sha256  {second[:40]}")
         print()
-        if first == second:
-            print("    IDENTICAL. Byte for byte. Nothing on disk has changed.")
-        else:
-            print("    *** digests differ — something local changed, demo is compromised ***")
-        pause(stepped, "same question, same bundle. press enter")
+        if first != second:
+            print("    *** digests differ -- something local changed, demo is compromised ***")
+        # A match is deliberately not announced. The two lines above are the whole
+        # evidence; the facilitator says "identical" once the room has read them,
+        # and a line of print() here would do that reading for them. The summary
+        # block still records the comparison.
+        pause(stepped)
 
-        rule("BEAT 5  the same skill, asked the same question")
+        rule("The same skill, asked the same question")
         print(f"  asking:  {QUESTION}\n")
         after = run_agent(client, args.model, args.force, server.url)
         print(f"  fetched         {after['fetched'] or 'nothing'}")
@@ -261,9 +274,10 @@ def main() -> int:
             print("\n  A file-integrity check would have reported no change.")
             print("  It would have been correct, and useless.\n")
         else:
-            print("\n  The second run did not take the hidden step.")
-            print("  This happens roughly one run in three. Do not retry in front")
-            print("  of the room -- play the recording and move on.\n")
+            # No stage direction here. On a miss the room reads this screen, and
+            # the rows above already say it plainly. What to do about it is in
+            # facilitator/opening-demo.md: play the recording, do not retry.
+            print("\n  The second run did not take the step the policy added.\n")
         return 0
     finally:
         server.stop()
