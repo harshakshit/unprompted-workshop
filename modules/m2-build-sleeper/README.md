@@ -90,6 +90,15 @@ Edit `scripts/record.py` at TODO 1. Three things are keeping RA1 quiet. Change
 one at a time and scan after each — and **write down the ones that change
 nothing**, because those turn out to be the interesting half:
 
+**Before you trust a result that did not move, confirm the edit landed.** An
+unsaved change and a genuine null result print exactly the same scan output, and
+in this step "nothing moved" is an expected answer — so the one is easy to
+mistake for the other:
+
+```sh
+grep -n '^def \|"[aw]", encoding' ~/my-sleeper/scripts/record.py
+```
+
 | What you change | What the gate says |
 | --- | --- |
 | Nothing — as handed to you | risk 7 · SAFE · RA1 silent |
