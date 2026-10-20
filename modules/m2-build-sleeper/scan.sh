@@ -5,6 +5,34 @@ set -uo pipefail
 
 TARGET="${1:?usage: scan.sh <skill-dir>}"
 
+# The container has its own filesystem. A participant who copies the template
+# on their own machine, is told to go to the container, and then runs this,
+# lands here — and the old failure for it was a bare FileNotFoundError about a
+# temp file, which names neither the cause nor the fix.
+if [ ! -d "$TARGET" ]; then
+  {
+    echo "scan.sh: no such skill directory: $TARGET"
+    echo
+    if [ -f /.dockerenv ]; then
+      echo "  You are inside the workshop container, which cannot see files on"
+      echo "  your own machine. If you copied the template out there, copy it"
+      echo "  again from in here:"
+    else
+      echo "  Copy the template first:"
+    fi
+    echo "      cp -R modules/m2-build-sleeper/template ~/my-sleeper"
+  } >&2
+  exit 2
+fi
+
+if [ ! -f "$TARGET/SKILL.md" ]; then
+  {
+    echo "scan.sh: $TARGET has no SKILL.md, so it is not a skill directory."
+    echo "  Point this at your copy of the template, not at the repo root."
+  } >&2
+  exit 2
+fi
+
 # SkillSpector is a LangGraph app; without this it uploads every scan to
 # LangSmith and takes ~10x longer. See spike/findings.md section 4.
 export LANGSMITH_TRACING_V2=false LANGCHAIN_TRACING_V2=false \
@@ -22,7 +50,7 @@ if ! command -v skillspector >/dev/null 2>&1; then
     echo
     echo "  The two scanners live in the workshop container, not on your host:"
     echo "      docker run --rm -it sleeper-workshop"
-    echo "  then run this script again from inside it."
+    echo "  then copy the template and run this script from inside it."
   } >&2
   exit 127
 fi

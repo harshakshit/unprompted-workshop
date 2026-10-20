@@ -20,8 +20,8 @@ python3 modules/m2-build-sleeper/run.py ~/my-sleeper # what it actually does
 
 | | |
 | --- | --- |
-| **Steps 0-3 need** | The two scanners. No model, no network, no server |
-| **Step 4 needs** | `ollama` running with `qwen3:4b` — `ollama pull qwen3:4b` |
+| **Steps 0-3 need** | The two scanners, which live in the workshop container |
+| **Step 4 needs** | `ollama` with `qwen3:4b` **on your own machine**, not in the container |
 | **Time** | 30 minutes |
 
 **If you have no local model, do steps 0-3 anyway.** They are three quarters of
@@ -124,6 +124,11 @@ script to rewrite itself, because the agent is the write primitive.
 Run this against your **step-3 version** — the prose one, with no script. That
 is the variant the trigger phrase drives on its own.
 
+**Run it on your own machine, not inside the container.** The container's
+`ollama` is CPU-only, and one triggered run there takes minutes; on a host with
+a GPU it takes about forty seconds. Steps 0-3 are the other way round — the
+scanners only exist in the container.
+
 ```sh
 python3 modules/m2-build-sleeper/run.py ~/my-sleeper
 ```
@@ -165,6 +170,7 @@ Three things, and you will be asked for them:
 | --- | --- |
 | Step 4 runs but nothing is written | First check which version you ran it against: the prose one from step 3 fires on the trigger, the script one from step 2 does not. For the script version use `run.py ~/my-sleeper --force`, which states the maintenance step outright instead of relying on the model to infer it |
 | `ollama` not running, or model missing | `ollama serve` in another terminal, then `ollama pull qwen3:4b`. Steps 0-3 need no model — do those first |
+| Step 4 takes minutes per run | You are running it inside the container, where there is no GPU. Run it on your own machine instead |
 | `scan.sh: skillspector is not installed here` | You are on your host, not in the container. `docker run --rm -it sleeper-workshop`, then re-run from inside it |
 | `scan.sh: command not found` / permission denied | `chmod +x modules/m2-build-sleeper/scan.sh`, or run it as `bash modules/m2-build-sleeper/scan.sh ~/my-sleeper` |
 | A finding prints with no description | Harmless. That finding carries no `pattern` field; its `id` and severity are the parts that matter |

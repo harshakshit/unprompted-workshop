@@ -18,6 +18,8 @@ if [ -t 1 ]; then
     Module 1   cat modules/m1-capability-map/worksheet.md
     Module 2   cp -R modules/m2-build-sleeper/template ~/my-sleeper
                modules/m2-build-sleeper/scan.sh ~/my-sleeper
+
+               Step 4 only, and faster on your own machine than in here:
                python3 modules/m2-build-sleeper/run.py ~/my-sleeper
     Module 3   python3 detection/static/scan_corpus.py
                python3 detection/runtime/record.py --skill corpus/m2c-project-memory

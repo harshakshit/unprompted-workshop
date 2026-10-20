@@ -3,7 +3,7 @@
 Everything the session needs, pinned, and working with **no network access**.
 
 ```sh
-docker build -f sandbox/Dockerfile -t sleeper-workshop .
+./sandbox/build.sh
 docker run --rm -it sleeper-workshop
 ```
 
@@ -40,13 +40,13 @@ Scanners only, no model — about 1.3GB. Enough for Modules 1 and 3, not for the
 live agent runs in Modules 2 and 4:
 
 ```sh
-docker build -f sandbox/Dockerfile --build-arg WITH_MODEL=0 -t sleeper-workshop:slim .
+./sandbox/build.sh --slim
 ```
 
 A different model, if you want faster iteration or have less disk:
 
 ```sh
-docker build -f sandbox/Dockerfile --build-arg MODEL=qwen3:1.7b -t sleeper-workshop .
+./sandbox/build.sh --model qwen3:1.7b
 ```
 
 Activation was measured at 20/20 on `qwen3:4b` at temperature 0, against
@@ -56,6 +56,33 @@ template, which asks the model to infer a `run_script` call, fired 0 times in 4
 on the same model. A smaller model has not been measured at all, and a sleeper
 that does not wake up is a poor demonstration — re-run
 `spike/activation/run_activation.py` if you change it.
+
+## Where step 4 runs, and why not in here
+
+**The scanners belong in the container. The model does not.** Modules 2 and 4
+make live model calls, and in-container inference is CPU-only on every Mac: the
+Dockerfile prunes the CUDA, ROCm and JetPack runtimes, and Docker Desktop on
+macOS has no Metal passthrough to prune them in favour of. Measured on an
+M-series host, `qwen3:4b` at temperature 0, against the step-3 prose sleeper:
+
+| | Trigger run | Control run |
+| --- | --- | --- |
+| Host `ollama` (Metal) | **39s** | 6.5s |
+| In the container (CPU) | **never completed: 2 runs timed out at 180s, a 3rd was killed** | 56s |
+
+Three attempts, no completed triggered run. The trigger costs far more than the
+control because it is two completions, not one — the agent emits the `write_file` call, and then generates its answer
+with the tool result appended to the whole conversation. On CPU that second
+prompt dominates, which is why the gap is 6x and not 1.5x.
+
+`modules/m2-build-sleeper/run.py` defaults to `http://127.0.0.1:11434/v1`, so on
+the host it needs nothing but `ollama serve` and the model. Module 2 step 4 is
+budgeted five minutes for two runs; that fits on the host and cannot fit in the
+container.
+
+The baked model is still the right call — it is the mitigation for the room's
+internet failing, and it makes `--network none` true. It is a fallback for
+running step 4 **once from the front**, not a plan for sixty people to run it.
 
 ## Notes
 

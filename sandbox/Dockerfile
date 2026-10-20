@@ -1,11 +1,11 @@
 # Workshop container: both static scanners, the runtime recorder, and a local
 # model, all pinned. Builds and runs with no network access at session time.
 #
-#   docker build -f sandbox/Dockerfile -t sleeper-workshop .
+#   ./sandbox/build.sh                 # stamps the commit; use this one
 #   docker run --rm -it sleeper-workshop
 #
 # Build without the 2.5GB model (scanners only, Modules 1 and 3):
-#   docker build -f sandbox/Dockerfile --build-arg WITH_MODEL=0 -t sleeper-workshop:slim .
+#   ./sandbox/build.sh --slim
 
 # --- ollama, stripped to its CPU runtime -------------------------------------
 # Taken from the release tarball rather than the ollama/ollama image, which is
@@ -87,6 +87,14 @@ RUN if [ "${WITH_MODEL}" = "1" ]; then \
 
 WORKDIR /workshop
 COPY . /workshop
+
+# Stamp the commit this image was built from. The repo is COPYed in, not
+# mounted, so an image goes stale silently — the one used in rehearsal turned
+# out to predate every lab manual in the repo, and nothing in the container
+# said so. sandbox/build.sh sets this; the morning pre-flight compares it
+# against `git rev-parse --short HEAD` before anyone relies on the image.
+ARG GIT_SHA=unstamped
+ENV WORKSHOP_BUILD_SHA=${GIT_SHA}
 
 COPY sandbox/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
