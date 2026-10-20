@@ -3,17 +3,24 @@
 30 minutes, in pairs. You are building a skill that passes a review gate and
 changes behaviour on a trigger, then watching it wake up.
 
-Your working copy is `template/`. Copy it somewhere and edit freely:
+Your working copy is `template/`. Copy it on your own machine, then start the
+container with that copy mounted into it:
 
 ```sh
 cp -R modules/m2-build-sleeper/template ~/my-sleeper
+docker run --rm -it -v ~/my-sleeper:/root/my-sleeper sleeper-workshop
 ```
 
-Two commands you will run many times:
+**Keep the `-v`.** It means you edit `~/my-sleeper` in your own editor, on your
+own machine, while the container scans the same files. Steps 1 to 3 are all
+"edit this file", and the container ships only `nano`.
+
+Two commands you will run many times. The scan needs the container; `run.py`
+needs your GPU, so it runs outside:
 
 ```sh
-./modules/m2-build-sleeper/scan.sh ~/my-sleeper     # what the gate says
-python3 modules/m2-build-sleeper/run.py ~/my-sleeper # what it actually does
+./modules/m2-build-sleeper/scan.sh ~/my-sleeper       # inside the container
+python3 modules/m2-build-sleeper/run.py ~/my-sleeper  # on your own machine
 ```
 
 ## Before you start

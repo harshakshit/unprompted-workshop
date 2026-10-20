@@ -85,6 +85,17 @@ RUN if [ "${WITH_MODEL}" = "1" ]; then \
       echo "built without a model; Modules 2 and 4 need: ollama pull ${MODEL}"; \
     fi
 
+# An editor, deliberately in a late layer so this does not invalidate the
+# scanner installs or the 2.5GB model pull above. Modules 2 and 4 are mostly
+# "edit this file", and python:3.12-slim ships no editor at all — a participant
+# working inside the container had sed and nothing else. The mounted workflow in
+# sandbox/README.md is the better answer; this is for anyone who cannot use it.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends nano vim-tiny \
+ && rm -rf /var/lib/apt/lists/* \
+ && ln -sf /usr/bin/vim.tiny /usr/local/bin/vim
+ENV EDITOR=nano
+
 WORKDIR /workshop
 COPY . /workshop
 

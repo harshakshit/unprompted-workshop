@@ -15,16 +15,23 @@ if [ -t 1 ]; then
 
   Benign Until It Isn't — workshop sandbox
 
-    Module 1   cat modules/m1-capability-map/worksheet.md
-    Module 2   cp -R modules/m2-build-sleeper/template ~/my-sleeper
-               modules/m2-build-sleeper/scan.sh ~/my-sleeper
+  What is in here: the two static scanners, the corpus, the whole repo.
+  What is not: a GPU. Anything that drives the local model is far faster on
+  your own machine, so the labs are split that way.
 
-               Step 4 only, and faster on your own machine than in here:
-               python3 modules/m2-build-sleeper/run.py ~/my-sleeper
-    Module 3   python3 detection/static/scan_corpus.py
-               python3 detection/runtime/record.py --skill corpus/m2c-project-memory
+    Run in here    cat modules/m1-capability-map/worksheet.md
+                   modules/m2-build-sleeper/scan.sh ~/my-sleeper
+                   python3 detection/static/scan_corpus.py
 
-  Nothing here needs network access.
+    Run out there  python3 modules/m2-build-sleeper/run.py ~/my-sleeper
+                   python3 detection/runtime/record.py --skill corpus/m2c-project-memory
+
+  Edit your own files out there as well. If you did not start this with your
+  copy mounted, exit and start it again with:
+
+      docker run --rm -it -v ~/my-sleeper:/root/my-sleeper sleeper-workshop
+
+  Otherwise the only editor in here is nano. Nothing here needs network access.
 
 BANNER
 fi

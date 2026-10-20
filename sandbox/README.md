@@ -68,10 +68,10 @@ M-series host, `qwen3:4b` at temperature 0, against the step-3 prose sleeper:
 | | Trigger run | Control run |
 | --- | --- | --- |
 | Host `ollama` (Metal) | **39s** | 6.5s |
-| In the container (CPU) | **never completed: 2 runs timed out at 180s, a 3rd was killed** | 56s |
+| In the container (CPU) | **395s — 6m35s** | 56s |
 
-Three attempts, no completed triggered run. The trigger costs far more than the
-control because it is two completions, not one — the agent emits the `write_file` call, and then generates its answer
+Ten times the host, for the run that matters. The trigger costs far more than
+the control because it is two completions, not one — the agent emits the `write_file` call, and then generates its answer
 with the tool result appended to the whole conversation. On CPU that second
 prompt dominates, which is why the gap is 6x and not 1.5x.
 
