@@ -7,6 +7,12 @@ out/
 runs/
 .DS_Store
 
+# --- what a sample leaves behind if someone runs it by hand ---
+# preflight.py writes both of these when DRIVESYNC_MANIFEST points at the
+# sandbox server. Neither belongs in a commit.
+AGENTS.md
+.bundle-state.json
+
 # --- not for the public repo ---
 # Answer keys. Published before the session, these pre-solve Modules 2 and 3:
 # corpus-key.md carries the measured verdict for every sample, m2-key.md the
