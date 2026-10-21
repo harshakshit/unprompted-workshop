@@ -296,10 +296,9 @@ If your numbers disagreed with the table, this is why — and it is the sharpest
 finding in the lab.
 
 `m2b-doc-sync` scores **7 / SAFE** on the pinned tag `v2.12.0`, and **65 /
-DO_NOT_INSTALL** on the project's `main` a few commits later. `m1-drive-sync`
-scores **73** on the tag and **70** on `main`. The skills' bytes are identical.
-Between the two builds, `TT3` gained taint propagation across function
-parameters — the exact gap question 4 asks you to find.
+DO_NOT_INSTALL** on the project's `main` a few commits later. The skill's bytes
+are identical. Between the two builds, `TT3` gained taint propagation across
+function parameters — the exact gap question 4 asks you to find.
 
 On a local `main` build the scorecard becomes **2 of 5 malicious caught**
 instead of 1, because `m2b` crosses the threshold. Same corpus, same tool, a
@@ -321,5 +320,48 @@ So: a verdict binds to a point in time — including the point in time of the
 thing issuing it, which the thing itself cannot reliably tell you. Control 1 in
 Module 4 asks you to record "the scanner and exact version". This is why that is
 not enough, and why the field you actually need is the commit.
+
+</details>
+
+<details>
+<summary><b>Not in the questions: the same scanner, twice, in under a minute</b></summary>
+
+The drift above needs two builds of the scanner. This one needs nothing but a
+network cable, and it is the reason your table reads the way it does.
+
+`m1-drive-sync` scores **73** when SkillSpector cannot reach OSV.dev during the
+scan, and **70** when it can. Same image, same bytes, same flags, same version
+string:
+
+| | `SC4` finding | confidence | score | coverage |
+| --- | --- | --- | --- | --- |
+| OSV unreachable | `OSV.dev unreachable, using static fallback (15 packages)` | **1.0** | **73** | 75% |
+| OSV answers | `requests has 16 known advisory(ies) (CVE-2014-1830 …)` | **0.4** | **70** | 100% |
+
+Read the direction twice, because it is the opposite of the obvious guess.
+**The run that knows less scores higher.** When the lookup fails, the scanner
+files its own blindness as a finding, at full confidence, and charges it to the
+skill. When it succeeds and finds sixteen real advisories against `requests`,
+the score goes *down*.
+
+Your table says 73 because the image pins `SKILLSPECTOR_OSV_TIMEOUT=0`, which
+forces the static path whether or not this room has working wifi. Without that
+pin the number depends on the network each table happened to have. Four
+seconds, if you want to watch it move:
+
+```sh
+docker run --rm -e SKILLSPECTOR_OSV_TIMEOUT=30 sleeper-workshop \
+    skillspector scan corpus/m1-drive-sync --no-llm
+```
+
+The report does admit it internally — `analysis_completeness` reads `partial`,
+75% coverage, `is_complete: false`. But the verdict line is identical either
+way, and the verdict line is what anybody actually reads. And because OSV is a
+live database, 70 is not stable either: it moves as advisories accumulate
+against `requests`.
+
+So a verdict binds to a point in time, to the scanner's build, **and to what a
+third-party database said while the scan was running** — none of which appears
+anywhere near the number.
 
 </details>

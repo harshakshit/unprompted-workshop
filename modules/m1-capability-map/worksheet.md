@@ -57,7 +57,7 @@ lab is in those lines.
 | Scanner | Verdict | Findings |
 | --- | --- | --- |
 | Cisco skill-scanner | **`is_safe: true`**, max MEDIUM | undeclared network, data-exfil network ×2, unpinned dependency |
-| NVIDIA SkillSpector | 73, DO_NOT_INSTALL | `TT3` CRITICAL env→network, `LP3` MEDIUM no tool scope, `SC1` unpinned, `SC4` `requests` CVEs |
+| NVIDIA SkillSpector | 73, DO_NOT_INSTALL | `TT3` CRITICAL env→network, `LP3` MEDIUM no tool scope, `SC1` unpinned, `SC4` dependency check degraded |
 
 One scanner calls it safe. The other flags it. Keep both in mind as you fill
 in part C — the question at the end is whether either of them told you what
