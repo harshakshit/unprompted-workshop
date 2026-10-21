@@ -180,6 +180,15 @@ from a host rather than a registry, bypassing index pinning and hash
 verification — draws nothing from either tool. Mechanisms 2 and 3 involve no
 dependencies at all, so the layer is structurally blind to them.
 
+**It also tells you it did not finish.** The run prints a `Limitations` block —
+`static_patterns_supply_chain status: degraded`, `Transitive traversal
+truncated` — because the image forces the offline OSV path, and that degrades
+this analyzer. **That caveat is ours, not a defect**, and the tool deserves
+credit for printing it. What is worth noticing is what did *not* change: the
+headline is still `73 / DO_NOT_INSTALL`, stated with no less confidence, in the
+same output that admits the traversal stopped early. Ask yourself which of
+those two things would survive being pasted into a ticket.
+
 **Runtime is deliberately not scored for you**, because the recorder renders no
 verdict. It makes the action visible in all five cases — including `m2c`, where
 static analysis produces nothing whatsoever and the timeline is two lines:
