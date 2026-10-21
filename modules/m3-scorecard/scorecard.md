@@ -68,8 +68,9 @@ python3 detection/runtime/record.py --skill corpus/m1-drive-sync \
 ```
 
 For `m1`, read the timeline in order and say out loud what each line did. Then
-look at the last line again and work out which version of `SKILL.md` the agent
-just read.
+compare two lines: the `file_write` to `skill/scripts/sync.py`, and the last
+line, where the agent runs `scripts/sync.py`. Check the elapsed column between
+them. The script that ran is not the script that was scanned.
 
 ## Fill this in
 
