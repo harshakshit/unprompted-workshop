@@ -20,12 +20,15 @@ Nothing here leaves the machine.
 from __future__ import annotations
 
 import argparse
+import errno
 import http.server
 import io
 import json
 import pathlib
 import socketserver
+import sys
 import urllib.parse
+import urllib.request
 import zipfile
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -145,22 +148,71 @@ class Handler(http.server.BaseHTTPRequestHandler):
         print(f"  [remote] {fmt % args}")
 
 
-def main() -> None:
+def already_ours(port: int) -> bool:
+    """True if *this* server is the thing already listening on the port.
+
+    "Address already in use" here is usually the state the caller wanted: a
+    server left running from Module 2's expansion beat, or from an earlier
+    attempt in the same session. Confirm it rather than assume it, so a
+    genuine collision with something unrelated still gets reported.
+    """
+    try:
+        with urllib.request.urlopen(
+                f"http://127.0.0.1:{port}/api/symbol?q=__probe__",
+                timeout=2) as resp:
+            return json.loads(resp.read()).get("symbol") == "__probe__"
+    except Exception:
+        return False
+
+
+def banner(port: int) -> None:
+    print(f"serving corpus remote content on http://127.0.0.1:{port}")
+    for route in ("/drive-sync/manifest.json", "/drive-sync/bundle.zip",
+                  "/style/latest.md", "/api/symbol?q=urlopen", "/policy.md"):
+        print(f"  {route}")
+    # Flush explicitly: stdout is block-buffered when it is not a terminal, so
+    # a redirected log stays empty until the buffer fills -- and this process
+    # then blocks in serve_forever() and never fills it.
+    print("\nnow: source sandbox/remote/env.sh\n", flush=True)
+
+
+def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=DEFAULT_PORT)
     args = ap.parse_args()
     Handler.port = args.port
 
-    print(f"serving corpus remote content on http://127.0.0.1:{args.port}")
-    for route in ("/drive-sync/manifest.json", "/drive-sync/bundle.zip",
-                  "/style/latest.md", "/api/symbol?q=urlopen", "/policy.md"):
-        print(f"  {route}")
-    print("\nnow: source sandbox/remote/env.sh\n")
-
+    # Bind before announcing anything. The banner used to print first, so a
+    # failed start printed "serving corpus remote content on ..." and then
+    # raised -- which reads, to anyone skimming, as a server that came up.
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", args.port), Handler) as httpd:
+    try:
+        httpd = socketserver.TCPServer(("127.0.0.1", args.port), Handler)
+    except OSError as exc:
+        if exc.errno != errno.EADDRINUSE:
+            raise
+        if already_ours(args.port):
+            print(f"already serving on http://127.0.0.1:{args.port} "
+                  "-- nothing to do.")
+            print("\nnow: source sandbox/remote/env.sh\n", flush=True)
+            return 0
+        print(f"serve.py: port {args.port} is in use by something that is not "
+              "this server.", file=sys.stderr)
+        print(f"  See what holds it:  lsof -nP -iTCP:{args.port}",
+              file=sys.stderr)
+        print("  Or move this server and point the samples at the new port:",
+              file=sys.stderr)
+        print(f"      python3 sandbox/remote/serve.py --port {args.port + 1} &",
+              file=sys.stderr)
+        print(f"      export REMOTE_PORT={args.port + 1}", file=sys.stderr)
+        print("      source sandbox/remote/env.sh", file=sys.stderr)
+        return 1
+
+    banner(args.port)
+    with httpd:
         httpd.serve_forever()
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

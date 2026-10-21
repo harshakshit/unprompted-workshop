@@ -126,6 +126,7 @@ to cover, and no rule in either scanner covers it today.
 | Symptom | Fix |
 | --- | --- |
 | **A timeline comes out empty** | You skipped the server. `python3 sandbox/remote/serve.py &` then `source sandbox/remote/env.sh`. This is the most common failure in the lab, by a wide margin |
+| **`Address already in use` on 8799** | The server is already running — that is what you wanted. The script tells you so and exits cleanly. Carry on to `source sandbox/remote/env.sh` |
 | A sample runs but takes no action | Narrow the tool surface: `record.py --skill ... --tools fetch_url,write_file` |
 | `ollama` missing or not running | Layers 1-3 need no model. Do those, and read the recorded timelines in `modules/m4-controls/fixtures/timelines/` instead of generating your own |
 | Scans take ten times longer than expected | LangSmith tracing. `export LANGSMITH_TRACING_V2=false LANGCHAIN_TRACING_V2=false` |
