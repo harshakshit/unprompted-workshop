@@ -15,7 +15,7 @@ Three pieces, in this order.
 | **Part 1, live** (`--skill`) | **Your own machine, not the container.** The remote server, `ollama` with `qwen3:4b`, and the sleeper you built in Module 2 |
 | **Part 2** | Nothing |
 | **Part 3** | Nothing live — `runner.py` reads the corpus files directly |
-| **Time** | 22 minutes: 8 / 6 / 6, with the last 2 for the question at the end |
+| **Time** | 22 minutes: 2 to frame it, then 8 / 5 / 5, then 2 for the question at the end |
 
 **Only the live run needs infrastructure.** If you have no local model, do the
 replay, the checklist and the rule — that is three quarters of the lab, and the
@@ -82,7 +82,7 @@ the write happened inside it. The digest moved anyway. The replay scores that
 same skill as contained; it is not, and the tool says so. That gap is the
 reason control 4 exists, and it is the most useful thing in this module.
 
-## 2. Fill in the acceptance checklist — 6 minutes
+## 2. Fill in the acceptance checklist — 5 minutes
 
 Open `checklist.md`. Five sections, one per control, each partly written.
 
@@ -94,7 +94,7 @@ Section 3 asks you to score `corpus/m1-drive-sync` — your Module 1 subject —
 against the transparent-update requirements. It fails all five. Being able to
 say *which* five, with evidence, is the deliverable.
 
-## 3. Write one rule — 6 minutes
+## 3. Write one rule — 5 minutes
 
 The gap: across nine skills and two scanners, **no finding asked whether a
 skill's own files are writable by the agent that loads it.**
