@@ -196,6 +196,13 @@ headline is still `73 / DO_NOT_INSTALL`, stated with no less confidence, in the
 same output that admits the traversal stopped early. Ask yourself which of
 those two things would survive being pasted into a ticket.
 
+**And it is not only this layer.** The `m1` row in your table above — the 73
+the whole scorecard rests on — comes from a scan recorded as `Status: partial`,
+`Coverage: 75.0%`, with `analyzer_runtime_error` on `requirements.txt` and an
+`error_class` of `ConnectError`. `scan_corpus.py` prints the score and none of
+that, because one line per skill has nowhere to put it. Neither does a CI
+summary, a dashboard tile, or a ticket.
+
 **Runtime is deliberately not scored for you**, because the recorder renders no
 verdict. It makes the action visible in all five cases — including `m2c`, where
 static analysis produces nothing whatsoever and the timeline is two lines:
