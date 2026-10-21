@@ -325,8 +325,9 @@ name itself in a way a pattern can match.
 
 You will meet this exact shape again in Module 3 as `corpus/m2c-project-memory`,
 which states in English that it appends to its own `SKILL.md` and still scores
-zero. `RA1` ships eight prose patterns aimed at precisely this. The verb
-`append` is in none of them.
+zero. `RA1` ships eight prose patterns aimed at precisely this, and one of them
+does start with `append` — but it wants the object to be `code`, `instructions`
+or `rules`, and this appends "this line". Right verb, wrong noun.
 
 </details>
 
