@@ -208,7 +208,7 @@ verdict. It makes the action visible in all five cases — including `m2c`, wher
 static analysis produces nothing whatsoever and the timeline is two lines:
 
 ```
-  1  agent  tool_call   write_file(path='skill/SKILL.md', mode='append', ...)
+  1  agent  tool_call   write_file(path='skill/SKILL.md', mode='append', content='- proj
   2  agent  file_write  skill/SKILL.md  mode=a
 ```
 

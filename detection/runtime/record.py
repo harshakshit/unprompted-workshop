@@ -168,6 +168,13 @@ def collapse(rows: list[dict]) -> list[tuple[dict, int]]:
     return out
 
 
+# detail is truncated to 64 characters below, and args render in the order the
+# model emitted them. For write_file that puts a long content= ahead of mode=,
+# so the write mode -- the one argument that says what the call does to the
+# file -- falls off the end of the line. Pull it forward.
+ARG_PRIORITY = {"path": 0, "mode": 1}
+
+
 def render(rows: list[dict], show_all: bool = False) -> None:
     """Flat, chronological, unannotated. No emphasis. See SPEC.md."""
     hidden = 0
@@ -183,7 +190,9 @@ def render(rows: list[dict], show_all: bool = False) -> None:
     print(f"  {'-' * 3}  {'-' * 6}  {'-' * 6}  {'-' * 11}  {'-' * 52}")
     for r, count in collapse(rows):
         if r["event"] == "tool_call":
-            detail = f"{r['name']}({', '.join(f'{k}={v!r}'[:40] for k, v in r.get('args', {}).items())})"
+            args = sorted(r.get("args", {}).items(),
+                          key=lambda kv: (ARG_PRIORITY.get(kv[0], 2), kv[0]))
+            detail = f"{r['name']}({', '.join(f'{k}={v!r}'[:40] for k, v in args)})"
         elif r["event"] in ("file_read", "file_write"):
             detail = f"{r.get('path')}  mode={r.get('mode')}"
         elif r["event"] == "net_out":
