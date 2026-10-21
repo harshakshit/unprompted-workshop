@@ -58,6 +58,11 @@ fi
 export LANGSMITH_TRACING_V2=false LANGCHAIN_TRACING_V2=false \
        LANGSMITH_TRACING=false LANGSMITH_API_KEY= LANGCHAIN_API_KEY=
 
+# SC4 reaches out to OSV.dev mid-scan, which makes a score depend on the
+# network the scanner ran in. 0 is floored to 1ms and forces the static
+# fallback, so a pair's number does not move when the wifi does.
+export SKILLSPECTOR_OSV_TIMEOUT="${SKILLSPECTOR_OSV_TIMEOUT:-0}"
+
 # mktemp -d is portable; "mktemp -t name" differs between BSD and GNU and
 # fails on Linux without a XXXXXX template.
 WORK="$(mktemp -d)"

@@ -30,6 +30,11 @@ QUIET_ENV = {
     "LANGSMITH_TRACING": "false",
     "LANGSMITH_API_KEY": "",
     "LANGCHAIN_API_KEY": "",
+    # SC4 queries OSV.dev during a scan, so m1-drive-sync scores 73 when that
+    # lookup fails and 70 when it succeeds. 0 is floored to 1ms by the client
+    # and forces the static fallback, so the table is the same on every
+    # machine, on or off a network. Override it to see the other number.
+    "SKILLSPECTOR_OSV_TIMEOUT": os.environ.get("SKILLSPECTOR_OSV_TIMEOUT", "0"),
 }
 
 

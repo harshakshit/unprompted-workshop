@@ -60,6 +60,17 @@ ENV LANGSMITH_TRACING_V2=false \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONUNBUFFERED=1
 
+# SC4 queries OSV.dev live, so m1-drive-sync scores 73 when that call fails and
+# 70 when it succeeds -- same image, same bytes, same flags. Worse, the score
+# is higher when the lookup fails, because the scanner files its own blindness
+# as a LOW finding at confidence 1.0 and charges it to the skill.
+#
+# A timeout of 0 is floored to 1ms by the client, which forces the static
+# fallback whether or not the room has network. Every participant gets 73.
+# Module 3 reveals the other number deliberately, by passing
+# -e SKILLSPECTOR_OSV_TIMEOUT=30 (the upstream default) to one scan.
+ENV SKILLSPECTOR_OSV_TIMEOUT=0
+
 # openai is left unpinned on purpose: cisco-ai-skill-scanner 2.3.0 requires
 # openai>=2.0, and the harnesses here use only the chat-completions surface,
 # which is stable across that boundary.
