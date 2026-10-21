@@ -216,7 +216,37 @@ def main() -> int:
                                     "differently when offered a script runner.")
     ap.add_argument("--all", action="store_true",
                     help="Include CPython's own stdlib imports.")
+    ap.add_argument("--allow-container", action="store_true",
+                    help="Run in the workshop container anyway. Slow, and the "
+                         "corpus cannot reach a server on your own machine.")
     args = ap.parse_args()
+
+    # The mirror of scan.sh's guard. Layers 1-3 only work inside the container;
+    # layer 4 only works outside it, and the beat before this one puts everyone
+    # in a container shell. Both failures are silent: CPU-only inference just
+    # looks slow, and 127.0.0.1:8799 resolves to the container rather than the
+    # host, so the fetch chain dies and the timeline comes out short.
+    if pathlib.Path("/.dockerenv").is_file() and not args.allow_container:
+        print(
+            "record.py: you are inside the workshop container.\n"
+            "\n"
+            "  Layer 4 needs two things that are not in here: a GPU, and the\n"
+            "  remote-content server running on your own machine.\n"
+            "\n"
+            "    - Docker Desktop cannot reach Metal, and the image prunes every\n"
+            "      GPU runtime, so inference is CPU-only: about 6m35s for a\n"
+            "      triggered run instead of 39 seconds.\n"
+            "    - 127.0.0.1:8799 from in here is this container, not your\n"
+            "      machine. The samples' fetches fail and the timeline comes\n"
+            "      out short, which looks identical to a correct empty result.\n"
+            "\n"
+            "  Run it out there instead:\n"
+            "      exit\n"
+            f"      python3 detection/runtime/record.py --skill {args.skill}\n"
+            "\n"
+            "  If you meant to do this, pass --allow-container.",
+            file=sys.stderr)
+        return 2
 
     ws = pathlib.Path(tempfile.mkdtemp(prefix="recorder-"))
     events = ws / ".timeline.jsonl"

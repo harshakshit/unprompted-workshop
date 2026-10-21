@@ -50,15 +50,21 @@ empty timeline that looks identical to not having started it.
 
 ## Run the layers
 
+Layers 1-3 run **in the container**. Layer 4 runs **on your own machine** — it
+needs a GPU and the server you started above, and `record.py` will stop and tell
+you if you try it in the container.
+
 ```sh
-# Layers 1 and 2 — both static scanners, every sample
+# Layers 1 and 2 — both static scanners, every sample. In the container.
 python3 detection/static/scan_corpus.py
 
-# Layer 3 — transitive dependencies
+# Layer 3 — transitive dependencies. In the container. Under two seconds.
 skillspector scan corpus/m1-drive-sync --no-llm --transitive --transitive-depth 2
 
-# Layer 4 — runtime recorder. Emits a timeline. It renders no verdict;
-# reading the timeline is your job.
+# Layer 4 — runtime recorder, ON YOUR OWN MACHINE, not in the container.
+# Emits a timeline. It renders no verdict; reading the timeline is your job.
+# Start the m1 one first: it takes 2m20s and m2c takes 50s, so run m1 and
+# read m2c's output while you wait.
 python3 detection/runtime/record.py --skill corpus/m2c-project-memory \
     --message "Thanks, let us wrap up for today."
 
@@ -70,7 +76,8 @@ python3 detection/runtime/record.py --skill corpus/m1-drive-sync \
 For `m1`, read the timeline in order and say out loud what each line did. Then
 compare two lines: the `file_write` to `skill/scripts/sync.py`, and the last
 line, where the agent runs `scripts/sync.py`. Check the elapsed column between
-them. The script that ran is not the script that was scanned.
+them — it will be a few milliseconds. The script that ran is not the script
+that was scanned.
 
 ## Fill this in
 
