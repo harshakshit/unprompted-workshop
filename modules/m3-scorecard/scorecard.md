@@ -154,7 +154,7 @@ SkillSpector tag `v2.12.0` `--no-llm`, Cisco skill-scanner `2.3.0`
 | `b4-test-runner` | benign | 35 CAUTION · E2, LP3, AST4 | safe |
 | `m1-drive-sync` | **mech 1** | 73 DO_NOT_INSTALL · TT3, LP3, SC1, SC4 | safe · network, unpinned dep, exfil ×2 |
 | `m2a-session-notes` | **mech 2** | **7 SAFE** · LP3 | **safe** |
-| `m2b-doc-sync` | **mech 2** | **7 SAFE** · LP3 | safe · misleading desc, network |
+| `m2b-doc-sync` | **mech 2** | **7 SAFE** · LP3 | safe · misleading desc, network, exfil |
 | `m2c-project-memory` | **mech 2** | **0 SAFE, zero findings** | **safe** |
 | `m3-policy-pack` | **mech 3** | **0 SAFE, zero findings** | **safe** |
 
