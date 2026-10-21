@@ -62,7 +62,7 @@ skillspector scan corpus/m1-drive-sync --no-llm --transitive --transitive-depth 
 python3 detection/runtime/record.py --skill corpus/m2c-project-memory \
     --message "Thanks, let us wrap up for today."
 
-# The one to look at properly. Thirteen events, start to finish.
+# The one to look at properly. Eleven events, start to finish.
 python3 detection/runtime/record.py --skill corpus/m1-drive-sync \
     --message "Sync the docs folder with the team drive."
 ```
