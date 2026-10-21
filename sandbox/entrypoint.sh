@@ -22,9 +22,11 @@ if [ -t 1 ]; then
     Run in here    cat modules/m1-capability-map/worksheet.md
                    modules/m2-build-sleeper/scan.sh ~/my-sleeper
                    python3 detection/static/scan_corpus.py
+                   python3 modules/m4-controls/guard.py --corpus
 
     Run out there  python3 modules/m2-build-sleeper/run.py ~/my-sleeper
                    python3 detection/runtime/record.py --skill corpus/m2c-project-memory
+                   python3 modules/m4-controls/guard.py --skill ~/my-sleeper
 
   Edit your own files out there as well. If you did not start this with your
   copy mounted, exit and start it again with:

@@ -34,6 +34,14 @@ ROOT = HERE.parents[1]
 SHIM = ROOT / "detection" / "runtime" / "_audit_shim.py"
 FIXTURES = HERE / "fixtures" / "timelines"
 
+# Reuse the recorder's definition of an interpreter import rather than write a
+# second one. Module 3 shows m1-drive-sync as 11 events with 46 interpreter
+# imports hidden; this file must not call the same run 59 events twenty
+# minutes later, and a divergence between the two definitions is worse than
+# either number.
+sys.path.insert(0, str(ROOT / "detection" / "runtime"))
+from record import is_interpreter_noise  # noqa: E402
+
 IDENTITY_FILES = {"AGENTS.md", "CLAUDE.md", "AGENT.md", ".cursorrules"}
 
 # One message per corpus sample that exercises its declared purpose. Used for
@@ -259,7 +267,8 @@ def replay(policy: dict) -> int:
         path = FIXTURES / f"{sample_id}.jsonl"
         if not path.is_file():
             continue
-        events = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+        raw = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+        events = [e for e in raw if not is_interpreter_noise(e)]
         denied = warned = 0
         for ev in events:
             ruling, _ = decide(policy, ev)
@@ -345,20 +354,34 @@ def report(result: dict) -> None:
             if before.get(path) != after.get(path):
                 print(f"    {path}: {before.get(path, '(absent)')} -> {after.get(path, '(absent)')}")
 
+    # A script-driven skill reads fifty stdlib .pyc files around the four
+    # events that matter, and they bury the four. Hidden for the same reason
+    # the recorder hides them: the interpreter importing itself is not the
+    # skill doing anything.
+    shown = [e for e in events if not is_interpreter_noise(e)]
+
     print(f"\n  {'ruling':<16}  {'action':<20}  detail")
     print(f"  {'-' * 16}  {'-' * 20}  {'-' * 40}")
-    for ev in events:
+    for ev in shown:
         detail = ev.get("path") or ev.get("url") or " ".join(ev.get("argv") or []) or ev.get("name", "")
-        print(f"  {str(ev['ruling']):<16}  {str(ev.get('action')):<20}  {detail[:44]}")
+        print(f"  {str(ev['ruling']):<16}  {str(ev.get('action') or '--'):<20}  {detail[:44]}")
 
-    denied = sum(1 for e in events if e["ruling"] == "deny")
-    observed = sum(1 for e in events if str(e["ruling"]).startswith("observed"))
-    print(f"\n  {denied} denied, {len(events) - denied - observed} allowed, "
-          f"{observed} observed inside a script")
+    denied = sum(1 for e in shown if e["ruling"] == "deny")
+    observed = [e for e in shown if str(e["ruling"]).startswith("observed")]
+    hidden = len(events) - len(shown)
+    tail = f", {hidden} interpreter imports hidden" if hidden else ""
+    print(f"\n  {denied} denied, {len(shown) - denied - len(observed)} allowed, "
+          f"{len(observed)} observed inside a script{tail}")
     if observed:
         print("  Script-internal actions are observed, not prevented. Set\n"
               "  subprocess: deny to stop a script running at all, or rely on\n"
               "  the surface digest above to invalidate approval after the fact.")
+    would = sum(1 for e in observed if e["ruling"] == "observed:deny")
+    if would:
+        print(f"\n  {would} of those carry a deny ruling. The policy recognised them\n"
+              "  and did not stop them, because the agent did not do them -- a\n"
+              "  script the policy allowed did. The replay scores this skill as\n"
+              "  contained. It is not. Read the digest, not the count.")
     print()
 
 
@@ -368,6 +391,7 @@ def main() -> int:
     ap.add_argument("--corpus", action="store_true")
     ap.add_argument("--record", action="store_true")
     ap.add_argument("--policy", type=pathlib.Path, default=HERE / "policy.yaml")
+    ap.add_argument("--allow-container", action="store_true")
     ap.add_argument("--message", default="Thanks, let us wrap up for today.")
     ap.add_argument("--model", default="qwen3:4b")
     ap.add_argument("--base-url", default="http://127.0.0.1:11434/v1")
@@ -380,6 +404,28 @@ def main() -> int:
         return replay(policy)
     if not args.skill:
         ap.error("pass --skill <dir>, --corpus, or --record")
+
+    # --corpus is a replay and belongs in here; --skill is a live model run and
+    # does not. Both failures are silent, which is why this is a hard stop:
+    # Docker Desktop cannot reach Metal so inference is CPU-only, and
+    # 127.0.0.1:8799 from in here is this container rather than your machine.
+    if pathlib.Path("/.dockerenv").is_file() and not args.allow_container:
+        print(
+            "guard.py: --skill is a live model run, and you are inside the\n"
+            "workshop container.\n"
+            "\n"
+            "  The replay is the whole of part 1 and works in here:\n"
+            "      python3 modules/m4-controls/guard.py --corpus\n"
+            "\n"
+            "  The live run needs a GPU and the remote-content server on your\n"
+            "  own machine. Run that one out there:\n"
+            "      exit\n"
+            f"      python3 modules/m4-controls/guard.py --skill {args.skill}\n"
+            "\n"
+            "  If you meant to do this, pass --allow-container.",
+            file=sys.stderr)
+        return 2
+
     report(live(args.skill, policy, args.message, args.model, args.base_url))
     return 0
 
