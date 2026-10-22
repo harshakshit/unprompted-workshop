@@ -210,8 +210,13 @@ Measured: **4/5 contained, 0/4 broken.**
 | `m3-policy-pack` | **nothing** — see below |
 
 The thing to notice is what you did *not* have to restrict. Four of the five
-sleepers need the network or a subprocess to do their work, and every one of
-them is harmless until it writes.
+sleepers end at a write, and three of those four need the network or a
+subprocess only to *reach* it — `m2c` needs neither, it just writes. You took
+away none of their capabilities.
+
+`m3` is the exception in the other direction. It never writes at all: its whole
+timeline is a fetch, and its act is the fetch. That is why nothing above
+contains it.
 
 **And `skill_self_write: deny` alone already scores 4/5 and 0/4.** The second
 line changes neither number; it takes `m1` from three denials to four, and the
