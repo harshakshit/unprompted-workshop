@@ -132,9 +132,9 @@ to cover, and no rule in either scanner covers it today.
 
 | Symptom | Fix |
 | --- | --- |
-| **A timeline comes out empty** | You skipped the server. `python3 sandbox/remote/serve.py &` then `source sandbox/remote/env.sh`. This is the most common failure in the lab, by a wide margin |
+| **A timeline comes out empty** | Three causes, identical output — the tool now lists them under the empty result. Most often the server: `python3 sandbox/remote/serve.py &` then `source sandbox/remote/env.sh`. Then: is that server on *this* machine? Then: did your message contain the skill's trigger? A skill that only writes needs no server at all |
 | **`Address already in use` on 8799** | The server is already running — that is what you wanted. The script tells you so and exits cleanly. Carry on to `source sandbox/remote/env.sh` |
-| A sample runs but takes no action | Narrow the tool surface: `record.py --skill ... --tools fetch_url,write_file` |
+| A sample runs but takes no action | First check the trigger — every sample here keys on a literal phrase, and the commands above carry it. If the trigger is right, narrow the tool surface: `record.py --skill ... --tools fetch_url,write_file` |
 | `ollama` missing or not running | Layers 1-3 need no model. Do those, and read the recorded timelines in `modules/m4-controls/fixtures/timelines/` instead of generating your own |
 | Scans take ten times longer than expected | LangSmith tracing. `export LANGSMITH_TRACING_V2=false LANGCHAIN_TRACING_V2=false` |
 | Your verdicts differ from the table below | Expected, if you are not in the container. See **the scanner drifts too** |

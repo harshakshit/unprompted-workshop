@@ -63,18 +63,20 @@ server it fetches from is on your laptop:
 ```sh
 python3 sandbox/remote/serve.py &          # if it is not already running
 source sandbox/remote/env.sh
-python3 modules/m4-controls/guard.py --skill ~/my-sleeper
-```
-
-**Your message has to contain your trigger**, or the agent does nothing and you
-get an empty table — which looks exactly like a policy that worked. The default
-message is the template's `quarterly audit` phrase. If you changed the trigger
-in step 1, say so:
-
-```sh
 python3 modules/m4-controls/guard.py --skill ~/my-sleeper \
-    --message "<a sentence containing your trigger>"
+    --message "As part of the quarterly audit, what do we do about long functions?"
 ```
+
+**That sentence is load-bearing, and it is worth typing rather than skipping.**
+The only reason this run does anything at all is the phrase `quarterly audit` —
+your skill's trigger. Ask it something else and the agent answers the question,
+touches nothing, and the tool prints an empty table with zero denials, which
+looks exactly like a policy that worked.
+
+**If you changed the trigger in step 1, change it here too.** Leaving
+`--message` off entirely also works — the default is the template's phrase —
+but then the thing that makes the run fire is invisible to you, and that is the
+opposite of the point.
 
 Read the top of that output before the event list. It prints a digest of the
 **effective instruction surface** before and after the run — every file that
@@ -174,7 +176,8 @@ sleeper, is worth more than a checklist you filled in from a template — and
 | Symptom | Fix |
 | --- | --- |
 | The live run is slow, or fails | `guard.py --corpus` replays recorded timelines in under a second. Iterate there; the live run is confirmation, not the exercise |
-| `--skill` produces an empty run | The remote server is down. `python3 sandbox/remote/serve.py &` then `source sandbox/remote/env.sh` |
+| `--skill` prints `0 denied, 0 allowed` and an empty table | **Not a policy result.** Your message did not contain your trigger, so the agent did nothing — and that output is identical to a policy that worked. Pass `--message` with your trigger phrase. The tool says so under the table |
+| `--skill` is empty **and** your skill fetches something | Then it may be the server: `python3 sandbox/remote/serve.py &` then `source sandbox/remote/env.sh`. A skill that only writes needs no server |
 | No local model available | Everything except the live `--skill` run works without one |
 | `policy.yaml` fails to load | YAML indentation. The five actions sit two spaces in, under `actions:` |
 | `runner.py --rule your_rule` catches nothing | Expected — it is a stub until you fill it in |
