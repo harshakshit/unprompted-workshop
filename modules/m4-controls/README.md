@@ -66,6 +66,16 @@ source sandbox/remote/env.sh
 python3 modules/m4-controls/guard.py --skill ~/my-sleeper
 ```
 
+**Your message has to contain your trigger**, or the agent does nothing and you
+get an empty table — which looks exactly like a policy that worked. The default
+message is the template's `quarterly audit` phrase. If you changed the trigger
+in step 1, say so:
+
+```sh
+python3 modules/m4-controls/guard.py --skill ~/my-sleeper \
+    --message "<a sentence containing your trigger>"
+```
+
 Read the top of that output before the event list. It prints a digest of the
 **effective instruction surface** before and after the run — every file that
 forms the agent's instructions, including files the skill does not own. If
