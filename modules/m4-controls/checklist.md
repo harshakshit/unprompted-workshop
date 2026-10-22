@@ -105,8 +105,9 @@ For each, say what happens when it fires:
 
 ## The gap neither scanner covers
 
-Across nine skills and two scanners, **no finding asked whether a skill's own
-files are writable by the agent that loads it.**
+Both scanners ask whether a skill's text *looks like* it rewrites itself.
+**Neither asks whether the skill's own files are writable by the agent that
+loads it** — and across nine skills and two scanners, no finding mentioned it.
 
 Write that as a single acceptance check — one sentence, checkable, with a
 defined failure action. This is the rule you implement in `rules/your_rule.py`.

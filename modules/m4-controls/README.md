@@ -2,8 +2,8 @@
 
 22 minutes, in pairs. This is the half that justifies the first half.
 
-You have spent 70 minutes establishing that a verdict does not tell you what
-a skill will do. Now you write the thing that does.
+You have spent three modules establishing that a verdict does not tell you
+what a skill will do. Now you write the thing that does.
 
 Three pieces, in this order.
 
@@ -96,8 +96,14 @@ say *which* five, with evidence, is the deliverable.
 
 ## 3. Write one rule — 5 minutes
 
-The gap: across nine skills and two scanners, **no finding asked whether a
-skill's own files are writable by the agent that loads it.**
+The gap, and the distinction is the whole of it: both scanners ask whether a
+skill's text *looks like* it rewrites itself. **Neither asks whether the
+skill's own files are writable by the agent that loads it** — and across nine
+skills and two scanners, no finding mentioned it.
+
+`RA1` is the proof that the first question is being asked and is not enough: it
+ships eight prose patterns aimed squarely at self-modification, two of them
+come close on `m2c`, and both miss on a noun.
 
 ```sh
 cd modules/m4-controls/rules
@@ -358,7 +364,7 @@ list and `this file` is in the instruction-file pattern. The rule lands on a
 genuinely malicious skill for partly the wrong reason.
 
 Lexical prose matching is fragile in both directions — which is precisely the
-criticism of `RA1` from ninety minutes earlier, now applying to your own rule.
+criticism of `RA1` from an hour earlier, now applying to your own rule.
 The honest position is that **limb 1 carries this rule and limb 2 is the weaker
 half.** Keep both, because limb 2 is the only thing that reaches a skill with no
 code. Just do not mistake it for the strong part.
