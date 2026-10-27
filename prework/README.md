@@ -7,9 +7,16 @@ together they download about 7GB.
 exercise, so if you arrive having read nothing you will be fine. Reading it
 means you spend Module 1 finding things rather than learning vocabulary.
 
-**The installs are.** Do them on your own machine, at home, on a connection
-you trust. Conference wifi will not carry 7GB for a room of people, and we are
-not going to spend session time on it.
+**The installs are, and here is the honest reason.** On the day we hand you a
+hosted lab — an AWS seat, nothing to install, and it is the path we expect most
+people to take. But reaching a seat needs the room's wifi to hold for two
+hours. The copy on your own laptop is the one that runs with the network
+unplugged. That is what makes it the fallback, and it is also why it has to be
+on disk **before** you arrive: something you still have to download during an
+outage is not a fallback.
+
+Do it at home, on a connection you trust. Conference wifi will not carry 7GB
+for a room of people, and we are not going to spend session time on it.
 
 ---
 
@@ -63,8 +70,9 @@ Short on disk? `./sandbox/build.sh --slim` is 1.3GB and skips the baked model.
 It is enough for Modules 1 and 3; Modules 2 and 4 then rely entirely on your
 host `ollama`, which is where they should run anyway.
 
-Lab accounts are issued on site if you would rather not install anything —
-either path works and you can switch mid-session.
+Hosted AWS seats are issued on site, so none of this is required to take part
+— either path works and you can switch mid-session. The seat needs the room's
+network; your laptop does not. Having both is the point.
 
 ---
 
