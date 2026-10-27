@@ -1,30 +1,67 @@
 # Before the workshop
 
-Twenty minutes of reading, and one build you should start now because it
-downloads about 4.5GB.
+Twenty minutes of reading, and two installs you should start now, because
+together they download about 7GB.
 
-**None of this is a prerequisite.** Module 1 covers the same ground by
+**The reading is not a prerequisite.** Module 1 covers the same ground by
 exercise, so if you arrive having read nothing you will be fine. Reading it
 means you spend Module 1 finding things rather than learning vocabulary.
+
+**The installs are.** Do them on your own machine, at home, on a connection
+you trust. Conference wifi will not carry 7GB for a room of people, and we are
+not going to spend session time on it.
 
 ---
 
 ## 1. Do this first
 
+You need **Docker** and **ollama**, and about **9GB free** — the image is 6.3GB
+on disk and the model another 2.5GB.
+
 ```sh
-git clone <this repo> && cd unprompted-workshop
-docker build -f sandbox/Dockerfile -t sleeper-workshop .
+git clone https://github.com/harshakshit/unprompted-workshop.git
+cd unprompted-workshop
+./sandbox/build.sh
 ```
 
-Then check it works with no network at all, because that is how it will run in
-the room:
+**Build with `build.sh`, not `docker build`.** It stamps the image with the
+commit it was built from. The repo is copied into the image rather than
+mounted, so an unstamped image cannot be told apart from a current one — and a
+stale image is the quietest way for this workshop to fail, because every lab
+still runs, just from older material. There is a check for it in the morning
+and an unstamped image fails it.
+
+Then the model, **on your own machine and not only in the container**:
+
+```sh
+ollama pull qwen3:4b
+```
+
+Install ollama from <https://ollama.com/download> if you do not have it. Two of
+the four labs make live model calls, and those runs happen on your host, not in
+the container: Docker Desktop on macOS has no Metal passthrough, so
+in-container inference is CPU-only and the run that matters takes **6m35s
+instead of 39s**. The container carries its own copy of the model as a
+fallback, which is why `--network none` works, but it is not how you want to
+spend your five minutes.
+
+Then check it all works with no network at all, because that is how it will run
+in the room:
 
 ```sh
 docker run --rm --network none sleeper-workshop \
   python3 detection/static/scan_corpus.py
+
+ollama run qwen3:4b "reply with the single word: ready"
 ```
 
-Nine skills should scan in a few seconds. If that works, you are set up.
+Nine skills should scan in under a minute, and `m1-drive-sync` should come out
+at **73 · DO_NOT_INSTALL** while `m2c-project-memory` and `m3-policy-pack` both
+come out at **0 · SAFE**. If you see that, and ollama answers, you are set up.
+
+Short on disk? `./sandbox/build.sh --slim` is 1.3GB and skips the baked model.
+It is enough for Modules 1 and 3; Modules 2 and 4 then rely entirely on your
+host `ollama`, which is where they should run anyway.
 
 Lab accounts are issued on site if you would rather not install anything —
 either path works and you can switch mid-session.

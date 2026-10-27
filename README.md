@@ -76,11 +76,19 @@ open a workshop about supply-chain provenance.
 
 Both static scanners run with no API key and no network egress.
 
+**If you are coming to the session, use the container instead** —
+`prework/README.md` has the two commands, and it pins what this section does
+not. The versions below are the ones every measured number in this repo was
+taken against; install either scanner unpinned and one corpus sample moves from
+`7 / SAFE` to `65 / DO_NOT_INSTALL`, which changes the Module 3 scorecard under
+you.
+
 ```sh
 export LANGSMITH_TRACING_V2=false LANGCHAIN_TRACING_V2=false
 python3 -m venv .venv && source .venv/bin/activate
-pip install cisco-ai-skill-scanner
-git clone --depth 1 https://github.com/NVIDIA/SkillSpector.git && pip install -e ./SkillSpector
+pip install "cisco-ai-skill-scanner==2.3.0"
+git clone --depth 1 --branch v2.12.0 https://github.com/NVIDIA/SkillSpector.git \
+  && pip install -e ./SkillSpector
 
 python3 detection/static/scan_corpus.py
 ```
@@ -90,8 +98,10 @@ LangGraph application: with tracing enabled in your environment it uploads the
 full content of every file it scans to `api.smith.langchain.com`, and takes
 roughly ten times as long doing it. Details in `spike/findings.md`.
 
-Modules 2 and 4 additionally need a local model. The container image carries
-one; if you are working outside it, `ollama pull qwen3:4b` is enough.
+Modules 2 and 4 additionally need a local model, **on your host** — the
+container's copy is a fallback, not the plan, because in-container inference is
+CPU-only and roughly ten times slower. `ollama pull qwen3:4b` is enough. See
+`sandbox/README.md` for the measured numbers.
 
 ## Status
 
