@@ -111,7 +111,10 @@ inference is CPU-only and roughly ten times slower. Getting this backwards is
 the most common way a lab stalls. Every command below says where it runs.
 
 In the container means inside `docker run --rm -it sleeper-workshop`; the
-container's own banner repeats this split when you start it.
+container's own banner repeats this split when you start it. Build it with
+`./sandbox/build.sh` (never a bare `docker build` — it stamps the commit), and
+check it is current with `./sandbox/build.sh --check`. A stale image runs every
+lab correctly, from older material, and says nothing.
 
 ### Module 1 — capability map
 
@@ -127,6 +130,19 @@ docker run --rm -it -v ~/my-sleeper:/root/my-sleeper sleeper-workshop
 
 ./modules/m2-build-sleeper/scan.sh ~/my-sleeper        # in the container
 python3 modules/m2-build-sleeper/run.py ~/my-sleeper   # on your machine
+python3 modules/m2-build-sleeper/run.py ~/my-sleeper --no-trigger
+```
+
+Step 4 is **both** of those runs. The second asks the same skill a question
+without the trigger phrase; nothing should fire. Without it you have watched a
+skill act, not watched a trigger decide.
+
+Before trusting any scan, confirm the edit actually saved — this is the one
+step where "nothing changed" is also the correct answer, so an unsaved edit and
+the lesson look identical:
+
+```sh
+grep -n '^def \|"[aw]", encoding' ~/my-sleeper/scripts/record.py
 ```
 
 To start over, empty the directory rather than deleting it — deleting it breaks
@@ -146,6 +162,10 @@ python3 sandbox/remote/serve.py &
 source sandbox/remote/env.sh
 
 python3 detection/static/scan_corpus.py                # in the container, ~40s
+
+# layer 3, the dependency pass -- in the container
+skillspector scan corpus/m1-drive-sync --no-llm --transitive --transitive-depth 2
+
 python3 detection/runtime/record.py --skill corpus/<name> --message "..."
                                                        # on your machine
 ```
