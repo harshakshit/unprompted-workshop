@@ -103,6 +103,74 @@ container's copy is a fallback, not the plan, because in-container inference is
 CPU-only and roughly ten times slower. `ollama pull qwen3:4b` is enough. See
 `sandbox/README.md` for the measured numbers.
 
+## Commands, by module
+
+**The machine matters more than the command.** The two scanners live only in the
+container; the model runs properly only on your host, where in-container
+inference is CPU-only and roughly ten times slower. Getting this backwards is
+the most common way a lab stalls. Every command below says where it runs.
+
+In the container means inside `docker run --rm -it sleeper-workshop`; the
+container's own banner repeats this split when you start it.
+
+### Module 1 — capability map
+
+Nothing to execute. `modules/m1-capability-map/worksheet.md` and the skill's own
+files, read on either machine.
+
+### Module 2 — build the sleeper
+
+```sh
+# on your machine
+cp -R modules/m2-build-sleeper/template ~/my-sleeper
+docker run --rm -it -v ~/my-sleeper:/root/my-sleeper sleeper-workshop
+
+./modules/m2-build-sleeper/scan.sh ~/my-sleeper        # in the container
+python3 modules/m2-build-sleeper/run.py ~/my-sleeper   # on your machine
+```
+
+To start over, empty the directory rather than deleting it — deleting it breaks
+the bind mount of a container you already have open:
+
+```sh
+find ~/my-sleeper -mindepth 1 -delete
+cp -R modules/m2-build-sleeper/template/. ~/my-sleeper/
+```
+
+### Module 3 — detection scorecard
+
+```sh
+# on your machine, first -- four samples fetch something and their
+# declared hosts deliberately do not resolve
+python3 sandbox/remote/serve.py &
+source sandbox/remote/env.sh
+
+python3 detection/static/scan_corpus.py                # in the container, ~40s
+python3 detection/runtime/record.py --skill corpus/<name> --message "..."
+                                                       # on your machine
+```
+
+`record.py` refuses to run inside the container and says why. The messages that
+trigger each sample are in `modules/m3-scorecard/scorecard.md`.
+
+### Module 4 — checklist and guardrails
+
+```sh
+python3 modules/m4-controls/guard.py --corpus           # either machine, 0.13s
+python3 modules/m4-controls/guard.py --skill ~/my-sleeper \
+    --message "As part of the quarterly audit, what do we do about long functions?"
+                                                        # on your machine only
+
+cd modules/m4-controls/rules
+python3 runner.py --rule example_rule                   # a worked rule, for shape
+python3 runner.py --rule your_rule --verbose
+```
+
+That `--message` is load-bearing: `quarterly audit` is the template's trigger.
+Ask it anything else and the agent answers the question, touches nothing, and
+the tool prints an empty table with zero denials — which looks exactly like a
+policy that worked.
+
 ## Status
 
 Pre-release, built against the 29 October session. Both feasibility spikes are
